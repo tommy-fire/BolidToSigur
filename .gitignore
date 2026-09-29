@@ -8,3 +8,11 @@ Thumbs.db
 .sudo_as_admin_successful
 .gitconfig
 uploads/
+
+# Local personal/access-control exports must never be committed
+snapshot_*/
+result_*/
+BolidExport/
+Проверка.csv
+pList.csv
+pMark.csv

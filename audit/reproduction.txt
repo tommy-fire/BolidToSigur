@@ -1,0 +1,9 @@
+slice: 1122334455667701 actual= ('34455667', '') documented immediate-before-01= 44556677
+unvalidated accepted: ABC ('ABC', 'непонятная длина (3)')
+unvalidated accepted: 123456789012345678 ('12345678', 'W34: правые 8 hex — СВЕРИТЬ с Sigur')
+unvalidated accepted: 999,99999 ('999,99999', 'уже W26')
+cards: input=7, output= 5 actual sheet rows= 5
+two indistinguishable people without ID merge into: 1
+missing tab field SQL identifier: [None]
+backup connection options: [{'timeout': 8}] (autocommit not set)
+All 6 audit scenarios reproduced; these assertions confirm defects, not correctness.
