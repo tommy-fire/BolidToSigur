@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>СКУД Sigur E510: дверь + турникет — пошаговая инструкция</title>
+<style>
+  :root{
+    --ink:#1c2430; --muted:#5a6a7e; --line:#c9d4e0; --accent:#0b62b8;
+    --ok:#1a7f37; --warn:#b45309; --danger:#b91c1c; --bg:#f6f8fb; --card:#ffffff;
+  }
+  *{box-sizing:border-box}
+  body{font-family:"Segoe UI",Arial,Helvetica,sans-serif;color:var(--ink);margin:0;background:var(--bg);line-height:1.55}
+  .page{max-width:1000px;margin:0 auto;padding:28px 34px 80px}
+  header{border-bottom:3px solid var(--accent);padding-bottom:14px;margin-bottom:22px}
+  h1{font-size:26px;margin:0 0 6px}
+  h2{font-size:21px;margin:44px 0 12px;padding:8px 12px;background:var(--card);border-left:5px solid var(--accent);box-shadow:0 1px 3px rgba(20,40,60,.08);page-break-after:avoid}
+  h3{font-size:17px;margin:28px 0 8px;page-break-after:avoid}
+  h4{font-size:15px;margin:18px 0 6px}
+  p{margin:8px 0}
+  .sub{color:var(--muted);font-size:14px}
+  table{border-collapse:collapse;width:100%;margin:12px 0;background:var(--card);font-size:14px}
+  th,td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+  th{background:#e8eef6}
+  code, .term{font-family:Consolas,Menlo,monospace;background:#eef2f7;border:1px solid var(--line);border-radius:4px;padding:1px 6px;font-size:13px;white-space:nowrap}
+  .diagram{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:14px;margin:16px 0;box-shadow:0 1px 3px rgba(20,40,60,.06);page-break-inside:avoid}
+  .diagram svg{width:100%;height:auto;display:block}
+  .fig{font-size:13px;color:var(--muted);text-align:center;margin-top:6px}
+  .step{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px 16px 12px 46px;margin:10px 0;position:relative;page-break-inside:avoid}
+  .step .n{position:absolute;left:14px;top:12px;width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center}
+  .step .chk{position:absolute;right:12px;top:12px;font-size:15px}
+  .note,.warn,.ok,.danger{border-radius:8px;padding:10px 14px;margin:12px 0;font-size:14px;page-break-inside:avoid}
+  .note{background:#e8f0fb;border:1px solid #b9d0ee}
+  .warn{background:#fdf3e3;border:1px solid #f0d9a8}
+  .danger{background:#fdeaea;border:1px solid #f2bcbc}
+  .ok{background:#e9f6ec;border:1px solid #bfe3c8}
+  .note b:first-child,.warn b:first-child,.ok b:first-child,.danger b:first-child{display:inline-block}
+  ul,ol{margin:8px 0;padding-left:24px}
+  li{margin:4px 0}
+  .toc{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:14px 18px;font-size:14px;columns:2;column-gap:40px}
+  .toc a{color:var(--accent);text-decoration:none}
+  .legend td{font-size:13px}
+  .small{font-size:13px;color:var(--muted)}
+  .kv td:first-child{width:38%}
+  @media print{
+    body{background:#fff}
+    .page{padding:0;max-width:none}
+    h2{background:none;box-shadow:none;border-bottom:2px solid var(--accent);page-break-before:always}
+    h2:first-of-type{page-break-before:auto}
+    .diagram,.step{box-shadow:none}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<header>
+  <h1>СКУД на контроллере Sigur E510: дверь с магнитным замком + турникет Smartec</h1>
+  <div class="sub">Пошаговая инструкция для монтажа «с нуля» с электрическими схемами.
+  Объект: дверь (магнитный замок, 2 считывателя, кнопка выхода, экстренное открытие) — этап 1;
+  турникет-трипод Smartec (2 считывателя, кнопка с 3 клавишами) — этап 2.
+  Питание 12 В: РИП-12 с АКБ. Сервер Sigur на ПК уже установлен.</div>
+</header>
+
+<div class="toc">
+  <div><a href="#s0">0. Как будет работать система</a></div>
+  <div><a href="#s1">1. Оборудование и что докупить</a></div>
+  <div><a href="#s2">2. Правила безопасности</a></div>
+  <div><a href="#s3">3. Этап 1 — дверь</a></div>
+  <div><a href="#s31">3.1 Монтаж корпусов</a></div>
+  <div><a href="#s32">3.2 Питание: РИП-12</a></div>
+  <div><a href="#s33">3.3 Подключение E510 (схема клемм)</a></div>
+  <div><a href="#s34">3.4 Магнитный замок</a></div>
+  <div><a href="#s35">3.5 Шлейф аварийного открытия</a></div>
+  <div><a href="#s36">3.6 Порядок работ (алгоритм)</a></div>
+  <div><a href="#s37">3.7 Настройка в программе Sigur</a></div>
+  <div><a href="#s38">3.8 Проверка этапа 1</a></div>
+  <div><a href="#s4">4. Этап 2 — турникет</a></div>
+  <div><a href="#s41">4.1 Питание турникета 220 В</a></div>
+  <div><a href="#s42">4.2 Подключение турникета</a></div>
+  <div><a href="#s43">4.3 Кнопка с тремя клавишами</a></div>
+  <div><a href="#s44">4.4 Настройка в программе</a></div>
+  <div><a href="#s45">4.5 Проверка этапа 2</a></div>
+  <div><a href="#s5">5. Если что-то не работает</a></div>
+  <div><a href="#appA">Прил. A. Шпаргалка по клеммам E510</a></div>
+  <div><a href="#appB">Прил. B. Кабели и токи</a></div>
+</div>
+
+<!-- ================= 0 ================= -->
+<h2 id="s0">0. Как будет работать система</h2>
+
+<p>Один контроллер <b>Sigur E510</b> управляет двумя точками прохода (такая конфигурация заложена в него производителем — до 4 точек):</p>
+
+<table>
+<tr><th>Точка</th><th>Что подключено</th><th>Как открывается</th></tr>
+<tr>
+  <td><b>1 — Дверь</b><br>(этап 1)</td>
+  <td>магнитный замок (реле K1), считыватель «вход» (PORT1), считыватель «выход» (PORT2), кнопка выхода (вход D3), геркон-датчик двери (вход D1)</td>
+  <td>карта у входа <i>или</i> карты/кнопка у выхода; <b>экстренно</b> — разрыв шлейфа F+/F− (зелёная кнопка или дубль)</td>
+</tr>
+<tr>
+  <td><b>2 — Турникет</b><br>(этап 2)</td>
+  <td>вход «Разблокировка» платы турникета (реле K2, импульс), считыватель «вход» (PORT3), «выход» (PORT4), кнопка с 3 клавишами (входы D4/D5/D6), датчики прохода (вход D2, опционально)</td>
+  <td>карта у любого из считывателей <i>или</i> клавиша на панели; <b>экстренно</b> — тот же шлейф F+/F−</td>
+</tr>
+</table>
+
+<div class="ok"><b>Ключевая идея аварийного открытия.</b> U E510 есть двухпроводный гальванически развязанный шлейф
+«пожарной/аварийной разблокировки» (клеммы <span class="term">F+</span>, <span class="term">F−</span>).
+Шлейф в нормальном состоянии <b>замкнут</b>. Любое событие, которое <b>рвёт</b> шлейф (срабатывание пожарной
+сигнализации ИЛИ нажатие кнопки с нормально-замкнутым контактом), мгновенно переводит контроллер в режим
+аварийной разблокировки: открывается <b>всё</b>, что он управляет, — и дверь, и турникет. Решение принимается
+самим контроллером, без сервера, без ПО — это именно «экстренное» открытие.
+Зелёная кнопка Smartec (УРД) имеет группу контактов <b>ОБЩ–НЗ</b> (нормально-замкнутая) — она идеально подходит
+для этой роли. Обычная дубль-кнопка с одним контактом НО соединяется через маленькое 12-вольтовое реле,
+нормально-замкнутый контакт которого тоже включён в шлейф. Обе кнопки — взаимные дубли.</div>
+
+<div class="diagram">
+<svg viewBox="0 0 960 540" role="img" aria-label="Общая схема системы">
+  <defs>
+    <marker id="arr" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L8,3.5 L0,7 z" fill="#5a6a7e"/></marker>
+  </defs>
+  <style>
+    .box{fill:#fff;stroke:#33475e;stroke-width:2;rx:8}
+    .t{font:600 14px "Segoe UI",Arial;fill:#1c2430}
+    .ts{font:12px "Segoe UI",Arial;fill:#5a6a7e}
+    .w{stroke:#5a6a7e;stroke-width:2;fill:none;marker-end:url(#arr)}
+    .w12{stroke:#c0392b;stroke-width:2.4;fill:none;marker-end:url(#arr)}
+    .wl{stroke:#2e7d32;stroke-width:2;fill:none;marker-end:url(#arr);stroke-dasharray:7 4}
+    .tag{font:600 11px "Segoe UI",Arial;fill:#fff}
+  </style>
+
+  <!-- Щиток -->
+  <rect class="box" x="20" y="30" width="170" height="70"/>
+  <text class="t" x="38" y="58">Щиток ~230 В</text>
+  <text class="ts" x="38" y="80">автоматы B10: на РИП-12,</text>
+  <text class="ts" x="38" y="95">на турникет (этап 2)</text>
+
+  <!-- RIP-12 -->
+  <rect class="box" x="250" y="30" width="190" height="100"/>
+  <text class="t" x="268" y="58">РИП-12 + АКБ</text>
+  <text class="ts" x="268" y="78">12 В, резерв при</text>
+  <text class="ts" x="268" y="93">отключении сети</text>
+  <text class="ts" x="268" y="108">+ контроль «Авария сети»</text>
+  <path class="w12" d="M190,55 L250,55"/>
+  <path class="w12" d="M190,80 L225,80 L225,72 L250,72"/>
+
+  <!-- E510 -->
+  <rect class="box" x="520" y="20" width="230" height="120"/>
+  <text class="t" x="538" y="48">Контроллер Sigur E510</text>
+  <text class="ts" x="538" y="68">точка 1: Дверь</text>
+  <text class="ts" x="538" y="84">точка 2: Турникет (этап 2)</text>
+  <text class="ts" x="538" y="100">шлейф F+/F− (аварийка)</text>
+  <text class="ts" x="538" y="116">Ethernet RJ45</text>
+  <path class="w12" d="M440,55 L520,55"/>
+  <text class="ts" x="450" y="47">12 В +</text>
+  <path class="w12" d="M440,80 L480,80 L480,95 L520,95"/>
+  <text class="ts" x="450" y="72">12 В −</text>
+
+  <!-- Сеть и ПК -->
+  <rect class="box" x="520" y="170" width="230" height="52"/>
+  <text class="t" x="538" y="192">Коммутатор / роутер</text>
+  <text class="ts" x="538" y="208">(свободный LAN-порт)</text>
+  <rect class="box" x="800" y="170" width="140" height="52"/>
+  <text class="t" x="818" y="192">ПК</text>
+  <text class="ts" x="818" y="208">сервер Sigur</text>
+  <path class="wl" d="M635,140 L635,170"/>
+  <path class="wl" d="M750,196 L800,196"/>
+
+  <!-- Дверь -->
+  <rect class="box" x="120" y="270" width="760" height="240"/>
+  <text class="t" x="140" y="298">Точка 1 — ДВЕРЬ (этап 1)</text>
+  <rect class="box" x="145" y="315" width="130" height="46"/>
+  <text class="t" x="157" y="336">Считыватель</text>
+  <text class="ts" x="157" y="352">«вход» (PORT1)</text>
+  <path class="wl" d="M210,315 L210,250 L545,250 L545,140"/>
+  <rect class="box" x="300" y="315" width="130" height="46"/>
+  <text class="t" x="312" y="336">Считыватель</text>
+  <text class="ts" x="312" y="352">«выход» (PORT2)</text>
+  <path class="wl" d="M365,315 L365,230 L560,230 L560,140"/>
+  <rect class="box" x="455" y="315" width="160" height="46"/>
+  <text class="t" x="470" y="336">Магнитный замок</text>
+  <text class="ts" x="470" y="352">← реле K1 (открывает)</text>
+  <path class="w12" d="M535,315 L535,290 L585,290 L585,140"/>
+  <rect class="box" x="645" y="315" width="110" height="46"/>
+  <text class="t" x="657" y="336">Геркон</text>
+  <text class="ts" x="657" y="352">двери (D1)</text>
+  <path class="wl" d="M700,315 L700,270 L605,270 L605,140"/>
+  <rect class="box" x="145" y="385" width="150" height="46"/>
+  <text class="t" x="157" y="406">Кнопка выхода</text>
+  <text class="ts" x="157" y="422">внутри (D3, НО)</text>
+  <path class="wl" d="M220,385 L220,372 L615,372 L615,140"/>
+
+  <rect class="box" x="320" y="385" width="290" height="95"/>
+  <text class="t" x="332" y="407">Экстренное открытие → шлейф F+/F−</text>
+  <text class="ts" x="332" y="428">зелёная кнопка Smartec (НЗ)</text>
+  <text class="ts" x="332" y="444">+ НЗ контакт реле ← обычная дубль-кнопка</text>
+  <text class="ts" x="332" y="460">нажали любую → дверь И турникет открыты</text>
+  <path class="w12" d="M610,432 L640,432 L640,300 L595,300 L595,140"/>
+
+  <!-- Турникет -->
+  <rect class="box" x="810" y="270" width="130" height="240"/>
+  <text class="t" x="822" y="298">Точка 2 —</text>
+  <text class="t" x="822" y="315">ТУРНИКЕТ</text>
+  <text class="ts" x="822" y="338">(этап 2)</text>
+  <text class="ts" x="822" y="360">2 считывателя</text>
+  <text class="ts" x="822" y="375">(PORT3/4)</text>
+  <text class="ts" x="822" y="397">кнопка с 3</text>
+  <text class="ts" x="822" y="412">клавишами (D4–6)</text>
+  <text class="ts" x="822" y="434">← импульс K2</text>
+  <text class="ts" x="822" y="456">220 В из щитка</text>
+  <path class="wl" d="M830,270 L700,270 L700,205 L750,205"/>
+  <text class="small" x="640" y="255">соседнее помещение — кабель до ~15 м</text>
+</svg>
+<div class="fig">Рис. 1. Общая схема системы (пунктир — Wiegand/сигнальные линии, красный — 12 В)</div>
+</div>
+
+<div class="note"><b>Что важно понять до начала работ.</b>
+<ul>
+<li>Все клеммы контроллера E510 <b>подписаны на клеммнике</b> именами функций: <span class="term">+</span> <span class="term">−</span> <span class="term">PORT1…PORT4</span> <span class="term">K1…K4</span> <span class="term">D1…D10</span> <span class="term">F+</span> <span class="term">F−</span> <span class="term">DCD</span> <span class="term">OPD</span>. Подключаем «по именам», ничего перепутать сложно. Полная таблица — <a href="#appA">прил. A</a>.</li>
+<li>Конкретный смысл каждой клеммы (что это за датчик, что считать «нормой») задаётся <b>в программе Sigur</b>. Поэтому при подключении обязательно ведите таблицу: «какой провод в какой клемме».</li>
+<li>Маркируйте каждый провод <b>с обоих концов</b> (маркером, бирками). Это сэкономит часы при наладке.</li>
+<li>Сервер Sigur у вас уже стоит — вся настройка делается мышкой, пайка/программирование контроллера не требуется.</li>
+</ul></div>
+
+<!-- ================= 1 ================= -->
+<h2 id="s1">1. Оборудование и что докупить</h2>
+
+<h3>1.1. Что уже есть (по вашему описанию)</h3>
+<table class="kv">
+<tr><th>Прибор</th><th>Заметка для работ</th></tr>
+<tr><td>Контроллер Sigur E510, 1 шт. (в корпусе)</td><td>Питание 10…15 В, 250 мА. IP20 — только сухое помещение. Уже виден в программе Sigur.</td></tr>
+<tr><td>Магнитный замок 12 В</td><td>Типовой: 280×80 мм, ~0,45…1 А. <b>Проверьте табличку</b>: напряжение 12 В и ток. Если 24 В или другой тип — напишите мне, схема изменится.</td></tr>
+<tr><td>Считыватели Smartec, 4 шт.</td><td>Карточные, интерфейс Wiegand-26 (12 В, 4 провода: +, −, D0, D1). E510 поддерживает Wiegand-26 — совместимы. Проверьте маркировку на корпусе/в паспорте.</td></tr>
+<tr><td>Кнопка выхода обычная (внутри двери)</td><td>Моментальный контакт НО (нормально разомкнут) — как раз то, что нужно для входа D3.</td></tr>
+<tr><td>Зелёная кнопка Smartec (УРД)</td><td>Тип ST-ER125D-GN / ST-ER126DMLS-GN: 2 группы контактов ОБЩ–НЗ–НР. Используем <b>нормально-замкнутую (НЗ)</b> группу. Вторая группа — «оповещение» (на свободный вход, см. 3.5).</td></tr>
+<tr><td>Дубль-кнопка «обычная»</td><td>2 контакта (ХО/НО) + 3 контакта подсветки. НО-контакт пойдёт на реле (схема 3.5), подсветка — на 12 В.</td></tr>
+<tr><td>Турникет-трипод Smartec</td><td>Питание 220 В (ST-TS010 — 25 Вт). Управление — вход «Разблокировка» (моментальное замыкание). Точные клеммы — по фото колодки (этап 2).</td></tr>
+<tr><td>Кнопка с тремя клавишами</td><td>3 независимых контакта → входы D4/D5/D6.</td></tr>
+<tr><td>РИП-12 (Болид), 2–3 шт., с АКБ</td><td>Резервный источник 12 В. Рекомендован инструкцией E510. Используем <b>один</b> (этап 1), второй — запас/расширение. Смотрите таблицу мощностей в 1.2.</td></tr>
+<tr><td>ПК с сервером Sigur, лицензия</td><td>Работаем в программе «Клиент».</td></tr>
+</table>
+
+<h3>1.2. Что нужно докупить (эконом-список)</h3>
+
+<div class="ok"><b>У вас уже есть бухта LAN-кабеля (витая пара)?</b> Тогда почти весь «сигнальный» кабель из
+списка ниже вам <b>не нужен</b>: витая пара идеально подходит для считывателей (Wiegand), кнопок, герконов,
+шлейфа аварийки и даже для питания контроллера. Для магнитного замка её тоже можно использовать —
+но жилы придётся <b>запараллелить</b> (подробный расчёт и раскладка — в <a href="#appB">приложении B</a>).
+<b>Купить всё равно придётся только:</b> кабель <b>ВВГнг(А)-LS 3×1,5</b> на 220 В (щиток→РИП-12 и
+щиток→турникет) — витой парой 220 В тянуть <b>нельзя</b>; и, если замок мощнее 1 А или далеко, —
+кусок <b>ШВВП/ПуГВ 2×1,5</b> на замок.</div>
+
+<table>
+<tr><th>Позиция</th><th>Зачем</th><th>Примечание</th></tr>
+<tr><td>ВВГнг(А)-LS 3×1,5 — 10–20 м</td><td><b>220 В:</b> щиток → РИП-12 (L, N, PE); щиток → турникет (этап 2)</td><td>Единственное, что нельзя заменить витой парой. Обязательно.</td></tr>
+<tr><td>Магнитоконтактный датчик двери (геркон), сухой контакт, «нормально-замкнутый», 1 шт.</td><td>Датчик положения двери (клемма D1). Контроллеру он нужен для логики: дождаться закрытия двери, «запрет повторного прохода», события «дверь открыта».</td><td>Без него система работает, но хуже. ~300–700 ₽.</td></tr>
+<tr><td>Реле 12 В с клеммами (10 А), 1 шт.</td><td>Через него дубль-кнопка (НО) включается в шлейф аварийки как НЗ-контакт.</td><td>Лучше готовый модуль с защитным диодом. ~150–300 ₽.</td></tr>
+<tr><td>Диод 1N4007, 1 шт. (если реле без диода)</td><td>Гасит всплески на обмотке реле.</td><td>Катод (кольцо) — к «+».</td></tr>
+<tr><td>Кабель ПуГВп/ШВВП 4×0,75 — 30 м</td><td>Считыватели (4 провода на каждый).</td><td></td></tr>
+<tr><td>Кабель 2×0,75 — 30 м</td><td>Кнопки, геркон, шлейф аварийки, DCD.</td><td></td></tr>
+<tr><td>Кабель 2×1,5 (или 3×1,5) — 10 м</td><td>Магнитный замок (до 1 А).</td><td>Если замок &lt; 0,8 А — хватит 0,75 мм².</td></tr>
+<tr><td>Кабель 12×0,75 — 20 м</td><td>Один кабель в помещение турникета: 2 считывателя (8 жил) + 3 клавиши (3 жилы) + запас. Соседнее помещение.</td><td>Альтернатива — два кабеля 4×0,75 и 2×0,75.</td></tr>
+<tr><td>Кабель ВВГнг(А)-LS 3×1,5 — 10 м</td><td>220 В: щиток → РИП-12 (L, N, PE). На турникет (этап 2) — ещё 3×1,5.</td><td>Красный/чёрный/жёлто-зелёный.</td></tr>
+<tr><td>Патч-корд Ethernet 3–5 м</td><td>Коммутатор → E510 (если нет).</td><td></td></tr>
+<tr><td>Клеммники WAGO 221-412/413 (или аналог) — 20–30 шт.</td><td>Всё соединение в коробке — без скруток.</td><td></td></tr>
+<tr><td>Автомат B10, 1–2 шт. (если нет свободных в щитке)</td><td>Отдельное отключение РИП-12 и турникета.</td><td></td></tr>
+<tr><td>Коробка навесная 400×500×120 мм + DIN-рейка (или просто крепёж на стену)</td><td>Общее место: РИП-12, E510, реле, клеммники — всё рядом, в сухом помещении.</td><td>E510 крепится на 4 дюбеля (шаблон в комплекте), РИП-12 — на винты.</td></tr>
+<tr><td>Предохранитель вставка 2 А (опционально)</td><td>Между 12 В+ и замком — если РИП-12 отключается от КЗ на замке.</td><td></td></tr>
+</table>
+
+<p class="small"><b>Инструмент:</b> мультиметр (обязательно!), stripper (или хороший нож), отвёртки,
+клеммный зажим (или паяльник для удлинений сигнальных кабелей — Sigur разрешает удлинение
+только пайкой; лучше сразу проложить цельные кабели), маркеры, изолента, стяжки, уровень.</p>
+
+<div class="note"><b>Про запас по току (РИП-12).</b> Нагрузка 12 В-шины: E510 — до 250 мА; магнитный замок —
+0,45…1,0 А (по табличке!); 4 считывателя — ~150–300 мА; подсветка — ~20 мА. Итого ~1–1,6 А.
+РИП-12 исп.01 (3 А) — с запасом ✓. РИП-12 исп.04 (2 А) — нормально, если замок до ~0,7 А.
+Автономность от АКБ 12×17 А·ч при такой нагрузке — порядка 10–14 часов (основной расход — замок,
+питается постоянно). Если нужно больше — бокс с двумя АКБ для РИП-12.</div>
+
+<!-- ================= 2 ================= -->
+<h2 id="s2">2. Правила безопасности (прочитайте до начала)</h2>
+<ul>
+<li><b class="danger" style="display:inline">⚡ 220 В</b> — только с отключённым автоматом в щитке, с проверкой отсутствием напряжения мультиметром/индикатором. Если чувствуете неуверенность — поручите эти 4–5 клемм электрику; весь остальной монтаж (12 В) — безопасный.</li>
+<li>Всё 12-вольтовое подключение — <b>при отключённом РИП-12 от сети</b>.</li>
+<li>Кабели 12 В и Wiegand прокладывайте <b>не ближе 50 см</b> от силовых 220-вольтовых линий; пересечения — под 90°.</li>
+<li>Магнитный замок и турникет — <b>заземлите</b> (PE) через металлический корпус/клемму, где она есть.</li>
+<li>Кнопки аварийного выхода (зелёная + дубль) устанавливайте <b>внутри помещения</b>, на высоте ~1 м, в доступном месте — это требование эвакуации.</li>
+<li>Магнитный замок — <b>нормально-замкнутый</b> (заперт при подаче питания, открыт при обесточивании): при полном отключении 12 В дверь откроется — это нормально и правильно для эвакуационного прохода. То же у турникета — «антипаника».</li>
+</ul>
+
+<!-- ================= 3 ================= -->
+<h2 id="s3">3. ЭТАП 1 — ДВЕРЬ С МАГНИТНЫМ ЗАМКОМ</h2>
+
+<h3 id="s31">3.1. Монтаж корпусов и механизмов</h3>
+<div class="step"><span class="n">1</span><span class="chk">☐</span>
+<b>Выберите место для «сердца» системы</b> (РИП-12 + E510 + клеммники): сухое, отапливаемое помещение рядом
+с дверью, чтобы были короткими: кабель к замку, к кнопкам, к считывателям, а дальше — один кабель в помещение турникета.
+Рядом — сетевая розетка/порт коммутатора для патч-корда.
+<div class="small">РИП-12 работает при −10…+40 °C, E510 — при −40…+50 °C. Не ставьте рядом с окном над батареей и под кондиционером.</div></div>
+
+<div class="step"><span class="n">2</span><span class="chk">☐</span>
+<b>Установите РИП-12</b> на стену (крепёж — в комплекте), вставьте АКБ в направляющие (если ещё не вставлена)
+и <b>плотно затяните</b> клеммы АКБ. Проверьте индикацию: без сети горит «Состояние АКБ», при подаче сети — «Наличие сети».</div>
+
+<div class="step"><span class="n">3</span><span class="chk">☐</span>
+<b>Установите E510</b>: отметьте 4 отверстия по шаблону (лежит в комплекте), дюбели, шурупы.
+Внутрь дверцы корпуса положите <b>бумагу с раскладкой проводов</b> (заполняете по ходу работ, см. 3.6) — так
+любой, включая вас через полгода, поймёт, что где.</div>
+
+<div class="step"><span class="n">4</span><span class="chk">☐</span>
+<b>Дверной блок</b>:
+<ul>
+<li>магнитный замок — в коробке/на коробке двери, над притвором, плоскость магнита <b>строго напротив</b> ответной пластины (зазор ≤ 2–3 мм, иначе держит слабо); крепёж — на саморезы в сталь, с шайбами;</li>
+<li>ответная пластина — на торец/поверхность двери;</li>
+<li>геркон — половинка на коробку, половинка на дверь, зазор при закрытой двери ≤ 5 мм;</li>
+<li>кнопка выхода — внутри, на высоте ~1 м от руки;</li>
+<li>зелёная кнопка Smartec — внутри, рядом, но не «под рукой случайного» — обычно чуть выше/ниже, с пломбой крышки;</li>
+<li>дубль-кнопка — удобное место (возле турникета/пост охраны — на этапе 2 станет «кнопкой открытия всего»);</li>
+<li>считыватель «вход» — снаружи, на высоте 1–1,2 м, по высоте кармана;</li>
+<li>считыватель «выход» — внутри, напротив.</li>
+</ul></div>
+
+<div class="step"><span class="n">5</span><span class="chk">☐</span>
+<b>Проложите кабели</b> (цельные, без сращиваний по пути; трасса в гофре/коробе/кабель-канале):
+<table class="legend">
+<tr><th>Кабель</th><th>Откуда → куда</th><th>Сечение/жила</th></tr>
+<tr><td>ВВГнг 3×1,5</td><td>щиток (B10) → РИП-12 (L, N, PE)</td><td>220 В</td></tr>
+<tr><td>2×0,75</td><td>РИП-12 «+», «−» → клеммы E510 «+», «−»</td><td>питание</td></tr>
+<tr><td>4×0,75</td><td>E510 PORT1 → считыватель «вход»</td><td>+, −, D0, D1</td></tr>
+<tr><td>4×0,75</td><td>E510 PORT2 → считыватель «выход»</td><td>+, −, D0, D1</td></tr>
+<tr><td>2×1,5 (+запасная)</td><td>E510 «+» → замок → клемма COM1; E510 «−» → клемма NO1</td><td>сила замка</td></tr>
+<tr><td>2×0,75</td><td>геркон → E510 D1 и «−»</td><td>датчик</td></tr>
+<tr><td>2×0,75</td><td>кнопка выхода → E510 D3 и «−»</td><td>кнопка</td></tr>
+<tr><td>2×0,75</td><td>зелёная кнопка (ОБЩ, НЗ) + реле → E510 F+ / F−</td><td>шлейф</td></tr>
+<tr><td>2×0,75</td><td>дубль-кнопка → реле; РИП-12 «+» → реле</td><td>шлейф</td></tr>
+<tr><td>2×0,75</td><td>РИП-12 «Авария сети» → E510 DCD («−» общая)</td><td>диагностика</td></tr>
+<tr><td>патч-корд</td><td>коммутатор → E510 RJ45</td><td>сеть</td></tr>
+</table></div>
+
+<h3 id="s32">3.2. Питание: РИП-12</h3>
+<div class="diagram">
+<svg viewBox="0 0 900 330" role="img" aria-label="Подключение РИП-12">
+  <style>
+    .bx{fill:#fff;stroke:#33475e;stroke-width:2}
+    .tt{font:600 14px "Segoe UI",Arial;fill:#1c2430}
+    .ts{font:12px "Segoe UI",Arial;fill:#5a6a7e}
+    .term{fill:#eef2f7;stroke:#33475e;stroke-width:1.4}
+    .tl{font:700 12px Consolas,monospace;fill:#1c2430}
+    .w1{stroke:#c0392b;stroke-width:2.4;fill:none}
+    .wn{stroke:#555;stroke-width:2.2;fill:none}
+    .wg{stroke:#b8860b;stroke-width:2.2;fill:none;stroke-dasharray:6 4}
+  </style>
+  <rect class="bx" x="30" y="120" width="180" height="90"/>
+  <text class="tt" x="48" y="150">Щиток ~230 В</text>
+  <text class="ts" x="48" y="170">автомат B10</text>
+  <text class="ts" x="48" y="186">L · N · PE</text>
+  <path class="w1" d="M210,140 L320,140"/>
+  <path class="wn" d="M210,165 L320,165"/>
+  <path class="wg" d="M210,190 L320,190"/>
+  <text class="ts" x="228" y="133">L</text><text class="ts" x="228" y="158">N</text><text class="ts" x="222" y="183">PE (заземление)</text>
+
+  <rect class="bx" x="320" y="90" width="220" height="180"/>
+  <text class="tt" x="338" y="115">РИП-12 (Болид)</text>
+  <rect class="term" x="338" y="130" width="46" height="26"/><text class="tl" x="348" y="147">L</text>
+  <rect class="term" x="338" y="162" width="46" height="26"/><text class="tl" x="346" y="179">N</text>
+  <rect class="term" x="338" y="194" width="46" height="26"/><text class="tl" x="344" y="211">PE</text>
+  <rect class="term" x="430" y="130" width="92" height="26"/><text class="tl" x="440" y="147">АКБ +</text>
+  <rect class="term" x="430" y="162" width="92" height="26"/><text class="tl" x="440" y="179">АКБ −</text>
+  <rect class="term" x="430" y="194" width="92" height="26"/><text class="tl" x="438" y="211">ВЫХОД +</text>
+  <rect class="term" x="430" y="226" width="92" height="26"/><text class="tl" x="438" y="243">ВЫХОД −</text>
+  <rect class="term" x="338" y="248" width="184" height="24"/><text class="ts" x="346" y="264">«Авария сети» (OK)</text>
+  <text class="ts" x="338" y="80">Индикация: «Наличие сети» / «Состояние АКБ» / «Нагрузка»</text>
+
+  <rect class="bx" x="620" y="120" width="250" height="120"/>
+  <text class="tt" x="638" y="148">Шина 12 В (клеммники)</text>
+  <rect class="term" x="638" y="160" width="100" height="28"/><text class="tl" x="652" y="179">12 В +</text>
+  <rect class="term" x="750" y="160" width="100" height="28"/><text class="tl" x="758" y="179">12 В − (GND)</text>
+  <text class="ts" x="638" y="215">сюда пойдут: E510 (+,−), DCD,</text>
+  <text class="ts" x="638" y="230">обмотка реле, подсветка</text>
+
+  <path class="w1" d="M522,207 L638,174"/>
+  <path class="wn" d="M522,239 L700,239 L700,210 L750,185"/>
+  <path class="wg" d="M522,260 L600,260 L600,290 L780,290 L780,188"/>
+  <text class="ts" x="560" y="255">«Авария сети» → DCD контроллера</text>
+
+  <text class="ts" x="430" y="315">Клеммы РИП-12 подписаны на приборе: L, N, PE, АКБ +/−, выход +/−, «Авария сети». По именам — и всё правильно.</text>
+</svg>
+<div class="fig">Рис. 2. Питание: щиток → РИП-12 → шина 12 В. PE — к шине заземления щитка (обязательно, если в здании есть)</div>
+</div>
+
+<div class="step"><span class="n">6</span><span class="chk">☐</span>
+<b>Соберите РИП-12 по Рис. 2</b> (автомат в щитке выключен!). Затяните клеммы АКБ.
+<b>Проверка:</b> включите автомат — загорается «Наличие сети», на выходе должно быть <b>13,0–14,2 В</b> (мультиметр, постоянный ток).
+Выключите автомат — напряжение упадёт до ~12 В, загорится индикация работы от АКБ. Это нормально.</div>
+
+<h3 id="s33">3.3. Подключение E510 (основная схема этапа 1)</h3>
+<div class="diagram">
+<svg viewBox="0 0 1000 660" role="img" aria-label="Клеммная схема E510 — этап 1">
+  <defs><marker id="a2" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L8,3.5 L0,7 z" fill="#5a6a7e"/></marker></defs>
+  <style>
+    .bx{fill:#fff;stroke:#33475e;stroke-width:2}
+    .cc{fill:#f2f6fb;stroke:#33475e;stroke-width:2.4}
+    .tt{font:600 14px "Segoe UI",Arial;fill:#1c2430}
+    .ts{font:12px "Segoe UI",Arial;fill:#5a6a7e}
+    .term{fill:#fff;stroke:#33475e;stroke-width:1.4}
+    .tl{font:700 11.5px Consolas,monospace;fill:#1c2430}
+    .wp{stroke:#c0392b;stroke-width:2.4;fill:none}
+    .wn{stroke:#333;stroke-width:2.2;fill:none}
+    .w0{stroke:#2e7d32;stroke-width:2;fill:none}
+    .w1{stroke:#1a5fb4;stroke-width:2;fill:none}
+    .wf{stroke:#b91c1c;stroke-width:2.6;fill:none}
+    .wo{stroke:#e67e22;stroke-width:2;fill:none}
+    .lw{font:11px "Segoe UI",Arial;fill:#33475e}
+  </style>
+
+  <!-- E510 корпус -->
+  <rect class="cc" x="380" y="60" width="250" height="560" rx="10"/>
+  <text class="tt" x="420" y="88">Sigur E510 (клеммник)</text>
+
+  <!-- Питание -->
+  <rect class="term" x="400" y="105" width="52" height="26"/><text class="tl" x="412" y="122">+</text>
+  <rect class="term" x="460" y="105" width="52" height="26"/><text class="tl" x="468" y="122">−</text>
+  <rect class="term" x="525" y="105" width="88" height="26"/><text class="tl" x="531" y="122">DCD</text>
+  <rect class="term" x="400" y="140" width="88" height="26"/><text class="tl" x="406" y="157">OPD (опц.)</text>
+
+  <!-- Порты считывателей -->
+  <g>
+    <rect class="term" x="398" y="185" width="70" height="30"/><text class="tl" x="404" y="200">PORT1</text><text class="ts" x="404" y="212">вход</text>
+    <rect class="term" x="398" y="230" width="70" height="30"/><text class="tl" x="404" y="245">PORT2</text><text class="ts" x="404" y="257">выход</text>
+    <rect class="term" x="398" y="275" width="70" height="30" stroke-dasharray="4 3"/><text class="ts" x="404" y="288">PORT3</text><text class="ts" x="404" y="300">(эт.2)</text>
+    <rect class="term" x="398" y="320" width="70" height="30" stroke-dasharray="4 3"/><text class="ts" x="404" y="333">PORT4</text><text class="ts" x="404" y="345">(эт.2)</text>
+  </g>
+
+  <!-- Реле -->
+  <g>
+    <rect class="term" x="480" y="185" width="130" height="30"/><text class="tl" x="487" y="200">K1: NO1 · COM1 · NC1</text><text class="ts" x="487" y="212">магн. замок</text>
+    <rect class="term" x="480" y="225" width="130" height="30" stroke-dasharray="4 3"/><text class="ts" x="487" y="240">K2: NO2·COM2·NC2</text><text class="ts" x="487" y="252">(эт.2, турникет)</text>
+    <rect class="term" x="480" y="265" width="130" height="24" stroke-dasharray="4 3"/><text class="ts" x="487" y="281">K3, K4 — запас</text>
+  </g>
+
+  <!-- D-входы -->
+  <g>
+    <rect class="term" x="400" y="380" width="106" height="28"/><text class="tl" x="406" y="399">D1 геркон двери</text>
+    <rect class="term" x="400" y="415" width="106" height="28" stroke-dasharray="4 3"/><text class="ts" x="406" y="434">D2 (эт.2 датч.)</text>
+    <rect class="term" x="400" y="450" width="106" height="28"/><text class="tl" x="406" y="469">D3 кнопка вых.</text>
+    <rect class="term" x="400" y="485" width="106" height="28" stroke-dasharray="4 3"/><text class="ts" x="406" y="504">D4–D6 (эт.2)</text>
+    <rect class="term" x="400" y="520" width="106" height="28"/><text class="tl" x="406" y="539">D7 (опц.)</text>
+  </g>
+
+  <!-- Шлейф -->
+  <rect class="term" x="525" y="380" width="90" height="28"/><text class="tl" x="533" y="399">F+</text>
+  <rect class="term" x="525" y="415" width="90" height="28"/><text class="tl" x="533" y="434">F−</text>
+  <rect class="term" x="525" y="450" width="90" height="28"/><text class="ts" x="533" y="469">VF (не задей.)</text>
+
+  <!-- Ethernet -->
+  <rect class="term" x="480" y="560" width="130" height="34"/><text class="tl" x="495" y="582">RJ45 Ethernet</text>
+
+  <!-- ===== ЛЕВО ===== -->
+  <!-- РИП -->
+  <rect class="bx" x="20" y="95" width="150" height="70"/>
+  <text class="tt" x="34" y="120">РИП-12</text>
+  <text class="ts" x="34" y="140">ВЫХОД + / −</text>
+  <text class="ts" x="34" y="156">«Авария сети»</text>
+  <path class="wp" d="M170,120 L400,118"/>
+  <path class="wn" d="M170,145 L350,145 L350,130 L460,124"/>
+  <path class="wo" d="M170,160 L300,160 L300,190 L450,190 L450,125 L525,118"/>
+  <text class="lw" x="180" y="112">12 В +</text>
+  <text class="lw" x="180" y="140">12 В −</text>
+  <text class="lw" x="305" y="185">DCD-жила</text>
+
+  <!-- Считыватели -->
+  <rect class="bx" x="20" y="225" width="185" height="60"/>
+  <text class="tt" x="34" y="250">Считыватель «вход»</text>
+  <text class="ts" x="34" y="268">(+12В, GND, D0, D1)</text>
+  <path class="wp" d="M205,240 L398,196"/>
+  <path class="wn" d="M205,252 L398,204"/>
+  <path class="w0" d="M205,262 L398,210"/>
+  <path class="w1" d="M205,272 L398,248"/>
+
+  <rect class="bx" x="20" y="300" width="185" height="60"/>
+  <text class="tt" x="34" y="325">Считыватель «выход»</text>
+  <text class="ts" x="34" y="343">(+12В, GND, D0, D1)</text>
+  <path class="wp" d="M205,315 L398,242"/>
+  <path class="wn" d="M205,327 L398,252"/>
+  <path class="w0" d="M205,337 L398,258"/>
+  <path class="w1" d="M205,347 L398,264"/>
+  <text class="ts" x="215" y="300">каждый порт: 4 клеммы +/−/D0/D1 — по подписи</text>
+
+  <!-- Геркон -->
+  <rect class="bx" x="20" y="430" width="185" height="56"/>
+  <text class="tt" x="34" y="454">Геркон двери</text>
+  <text class="ts" x="34" y="472">(закрыта = замкнут)</text>
+  <path class="w0" d="M205,448 L400,396"/>
+  <path class="wn" d="M205,470 L330,470 L330,500 L380,500 L380,130 L460,126"/>
+  <text class="lw" x="215" y="443">→ D1</text>
+  <text class="lw" x="215" y="488">→ «−» (GND)</text>
+
+  <!-- Кнопка выхода -->
+  <rect class="bx" x="20" y="510" width="185" height="56"/>
+  <text class="tt" x="34" y="534">Кнопка выхода (НО)</text>
+  <text class="ts" x="34" y="552">внутри помещения</text>
+  <path class="w0" d="M205,530 L400,466"/>
+  <path class="wn" d="M205,552 L340,552 L340,520 L380,520 L380,135 L460,130"/>
+  <text class="lw" x="215" y="525">→ D3</text>
+  <text class="lw" x="215" y="570">→ «−» (GND)</text>
+
+  <!-- ===== НИЗ/ПРАВО: шлейф ===== -->
+  <rect class="bx" x="640" y="560" width="330" height="80"/>
+  <text class="tt" x="655" y="584">Шлейф аварийной разблокировки</text>
+  <text class="ts" x="655" y="602">F+ → [НЗ реле от дубль-кнопки] →</text>
+  <text class="ts" x="655" y="618">[НЗ зелёной кнопки] → F−  (схема — рис. 4)</text>
+  <path class="wf" d="M560,395 L620,395 L620,590 L640,590"/>
+  <path class="wf" d="M560,429 L600,429 L600,612 L640,612"/>
+
+  <!-- D7 опция -->
+  <path class="wo" d="M506,534 L640,534 L640,560 L680,560"/>
+  <text class="ts" x="648" y="552">2-я группа зелёной</text>
+  <text class="ts" x="648" y="564">кнопки (оповещение, опц.)</text>
+
+  <!-- Ethernet -->
+  <rect class="bx" x="830" y="560" width="140" height="44"/>
+  <text class="tt" x="845" y="580">Коммутатор</text>
+  <text class="ts" x="845" y="596">→ ПК (сервер Sigur)</text>
+  <path class="w1" d="M610,577 L830,582"/>
+
+  <text class="ts" x="620" y="340">K2, PORT3/4, D2, D4–D6</text>
+  <text class="ts" x="620" y="356">— подключаем на этапе 2</text>
+</svg>
+<div class="fig">Рис. 3. Клеммная схема E510 на этапе 1 (пунктиром — клеммы этапа 2; цвета жил: красный +12 В, чёрный GND, зелёный/синий Wiegand, оранжевый сигналы, красный толстый — шлейф)</div>
+</div>
+
+<div class="step"><span class="n">7</span><span class="chk">☐</span>
+<b>Подключите E510 по Рис. 3</b> (РИП-12 выключен!). Порядок: сначала питание +/−, потом DCD, потом
+считыватели, геркон, кнопку, шлейф (схема шлейфа — следующий раздел), RJ45.
+<div class="small">У некоторых ревизий контроллера в порте считывателя могут быть только 2 клеммы (D0/D1) —
+тогда питание считывателя берите напрямую с шины 12 В: «+» и «−» шины → на клеммы питания считывателя,
+в порт — только D0 и D1. Всё равно будет работать.</div></div>
+
+<div class="step"><span class="n">8</span><span class="chk">☐</span>
+<b>Считыватели</b>: у карточных Smartec 4 провода: <span class="term">+12 В</span>, <span class="term">GND</span>,
+<span class="term">D0 (DATA+)</span>, <span class="term">D1 (DATA−)</span>. Цвета жил смотрите по паспорту конкретного
+считывателя (часто: красный +, чёрный −, зелёный D0, белый D1, но бывает иначе).
+<b>Перепутанные D0/D1 — самая частая причина «карта не читается»</b> (при этом ошибок не выводится,
+просто тишина). Если не читается — просто поменяйте эти две жилы местами.</div>
+
+<h3 id="s34">3.4. Магнитный замок (реле K1, потенциальное управление)</h3>
+<p>Логика: <b>реле K1 включено = замок заперт</b> (в нем замкнуто NO1 и питание идёт на катушку).
+Команда «открыть» — реле отпускает, замок обесточивается, дверь открывается. В программе это
+выбирается как «потенциальное управление» (см. 3.7).</p>
+
+<div class="diagram">
+<svg viewBox="0 0 900 380" role="img" aria-label="Схема магнитного замка">
+  <style>
+    .bx{fill:#fff;stroke:#33475e;stroke-width:2}
+    .lock{fill:#fff8e6;stroke:#b45309;stroke-width:2.4}
+    .tt{font:600 14px "Segoe UI",Arial;fill:#1c2430}
+    .ts{font:12px "Segoe UI",Arial;fill:#5a6a7e}
+    .term{fill:#fff;stroke:#33475e;stroke-width:1.4}
+    .tl{font:700 11.5px Consolas,monospace;fill:#1c2430}
+    .wp{stroke:#c0392b;stroke-width:2.6;fill:none}
+    .wn{stroke:#333;stroke-width:2.4;fill:none}
+  </style>
+  <text class="ts" x="24" y="30">Питание замка берём с клеммы «+» контроллера (та же шина 12 В от РИП-12) — по официальной схеме Sigur.</text>
+
+  <!-- источник -->
+  <rect class="bx" x="20" y="80" width="150" height="60"/>
+  <text class="tt" x="38" y="105">Шина 12 В</text>
+  <text class="ts" x="38" y="123">«+» E510 / РИП-12</text>
+  <path class="wp" d="M170,100 L280,100"/>
+
+  <!-- замок -->
+  <rect class="lock" x="280" y="70" width="220" height="80" rx="8"/>
+  <text class="tt" x="300" y="100">МАГНИТНЫЙ ЗАМОК</text>
+  <text class="ts" x="300" y="118">12 В, 0,45…1 А</text>
+  <text class="ts" x="300" y="134">2 клеммы (полярность не важна)</text>
+
+  <!-- варистор -->
+  <rect class="bx" x="280" y="30" width="220" height="30" fill="#eef2f7"/>
+  <text class="ts" x="290" y="49">варистор (из комплекта E510) — перемыкает обе клеммы замка</text>
+  <path class="wn" d="M300,60 L300,70" stroke-dasharray="3 3"/>
+  <path class="wn" d="M480,60 L480,70" stroke-dasharray="3 3"/>
+
+  <!-- от замка к COM -->
+  <path class="wp" d="M500,110 L640,110"/>
+  <text class="ts" x="540" y="100">→ клемма COM1</text>
+
+  <!-- реле -->
+  <rect class="bx" x="640" y="70" width="220" height="110"/>
+  <text class="tt" x="658" y="95">Реле K1 (X1)</text>
+  <rect class="term" x="660" y="105" width="180" height="24"/><text class="tl" x="672" y="121">NO1</text>
+  <rect class="term" x="660" y="133" width="180" height="24"/><text class="tl" x="672" y="149">COM1</text>
+  <rect class="term" x="660" y="161" width="180" height="24"/><text class="tl" x="672" y="177">NC1 — НЕ задействована</text>
+  <text class="ts" x="658" y="200">порядок клемм — по надписи на плате</text>
+
+  <path class="wn" d="M700,129 L700,250 L200,250 L200,140 L170,140"/>
+  <text class="ts" x="380" y="242">NO1 → «−» (GND) шины 12 В</text>
+
+  <rect x="20" y="290" width="840" height="70" fill="#e9f6ec" stroke="#bfe3c8"/>
+  <text class="ts" x="36" y="312">Состояния: ЗАПЕРТО — индикатор реле D41 горит, NO1 замкнуто, замок «гудит» и держит.</text>
+  <text class="ts" x="36" y="330">ОТКРЫТО — реле отпустило (индикатор погас), замок обесточен.</text>
+  <text class="ts" x="36" y="348">Если после подачи питания замок НЕ включился, а индикатор D41 горит — поменяйте местами провода NO1 и NC1.</text>
+</svg>
+<div class="fig">Рис. 4. Магнитный замок через реле K1. Варистор — обязательно, из комплекта E510 (4 шт.)</div>
+</div>
+
+<div class="step"><span class="n">9</span><span class="chk">☐</span>
+<b>Соберите цепь замка по Рис. 4</b>: «+» шины → (варистор параллельно замку) → замок → COM1;
+NO1 → «−» шины. NC1 — свободна. Кабель к замку — сечение 1,5 мм² (0,75 — если замок до 0,8 А и линия короткая).</div>
+
+<h3 id="s35">3.5. Шлейф аварийного открытия (зелёная кнопка + дубль)</h3>
+<p>Обе кнопки должны <b>рвать</b> шлейф F+–F−. У зелёной кнопки Smartec для этого есть
+нормально-замкнутая группа <span class="term">ОБЩ–НЗ</span>. У дубль-кнопки контакт НО — поэтому
+ставим маленькое реле: пока кнопку не жмут — контакт реле в шлейфе <b>замкнут</b> (НЗ),
+нажали кнопку — реле включилось и <b>размыкает</b> шлейф.</p>
+
+<div class="diagram">
+<svg viewBox="0 0 940 360" role="img" aria-label="Шлейф аварийной разблокировки">
+  <style>
+    .bx{fill:#fff;stroke:#33475e;stroke-width:2}
+    .gn{fill:#e9f6ec;stroke:#1a7f37;stroke-width:2}
+    .wf{stroke:#b91c1c;stroke-width:3;fill:none}
+    .wp{stroke:#c0392b;stroke-width:2.2;fill:none}
+    .wn{stroke:#333;stroke-width:2;fill:none}
+    .tt{font:600 14px "Segoe UI",Arial;fill:#1c2430}
+    .ts{font:12px "Segoe UI",Arial;fill:#5a6a7e}
+    .term{fill:#fff;stroke:#33475e;stroke-width:1.4}
+    .tl{font:700 11.5px Consolas,monospace;fill:#1c2430}
+  </style>
+
+  <rect class="bx" x="20" y="150" width="130" height="70"/>
+  <text class="tt" x="38" y="178">E510</text>
+  <rect class="term" x="34" y="190" width="100" height="22"/><text class="tl" x="66" y="206">F+</text>
+  <rect class="term" x="34" y="216" width="100" height="22"/><text class="tl" x="64" y="232">F−</text>
+  <rect class="term" x="34" y="164" width="100" height="20" fill="#f2f2f2"/><text class="ts" x="42" y="179">VF — пусто</text>
+
+  <path class="wf" d="M150,201 L300,201"/>
+
+  <!-- Реле -->
+  <rect class="bx" x="300" y="160" width="200" height="82"/>
+  <text class="tt" x="318" y="184">Реле 12 В (модуль)</text>
+  <rect class="term" x="316" y="196" width="168" height="22"/><text class="ts" x="326" y="211">НОРМАЛЬНО-ЗАМКНУТЫЙ контакт (НЗ): 1 — 2</text>
+  <text class="ts" x="318" y="236">обмотка: A1 (к 12 В+) · A2 (через кнопку к «−»)</text>
+  <path class="wf" d="M500,201 L640,201"/>
+
+  <!-- Зелёная кнопка -->
+  <rect class="gn" x="640" y="150" width="180" height="90"/>
+  <text class="tt" x="656" y="176">Зелёная кнопка Smartec</text>
+  <text class="ts" x="656" y="196">группа 1: ОБЩ — НЗ — НР</text>
+  <text class="ts" x="656" y="212">используем: ОБЩ и НЗ</text>
+  <text class="ts" x="656" y="228">(НР — не трогаем)</text>
+  <path class="wf" d="M820,201 L880,201 L880,227 L150,227"/>
+
+  <!-- Кнопка и обмотка -->
+  <rect class="bx" x="300" y="290" width="200" height="60"/>
+  <text class="tt" x="318" y="315">Дубль-кнопка (НО)</text>
+  <text class="ts" x="318" y="333">2 контакта: а — б</text>
+  <path class="wp" d="M330,290 L330,270 L400,270 L400,242"/>
+  <path class="wn" d="M470,290 L520,290 L520,320 L620,320"/>
+  <text class="ts" x="345" y="262">к 12 В+ (шина)</text>
+  <text class="ts" x="530" y="312">к «−» (GND)</text>
+  <text class="ts" x="640" y="324">светодиод-подсветка кнопки: +12 В / GND (горит, пока нажата);</text>
+  <text class="ts" x="640" y="340">«горит при открытой двери» — по запросу, добавим схему</text>
+
+  <rect x="20" y="40" width="900" height="40" fill="#fdeaea" stroke="#f2bcbc"/>
+  <text class="ts" x="34" y="57">Нажали ЛЮБУЮ из двух кнопок → шлейф разорван → E510 мгновенно открывает дверь И турникет (режим «пожар»),</text>
+  <text class="ts" x="34" y="73">зелёная удерживает открытие до сброса (ключом/стеклом), обычная — пока нажата. Решение — в контроллере, без сервера.</text>
+</svg>
+<div class="fig">Рис. 5. Шлейф F+/F−: две кнопки-дубля. Клемма VF оставлена свободной.</div>
+</div>
+
+<div class="step"><span class="n">10</span><span class="chk">☐</span>
+<b>Соберите шлейф по Рис. 5</b> (при выключенном РИП-12):
+<ul>
+<li>F+ E510 → клемма 1 НЗ-контакта реле;</li>
+<li>клемма 2 НЗ-контакта реле → «ОБЩ» зелёной кнопки;</li>
+<li>«НЗ» зелёной кнопки → F− E510;</li>
+<li>обмотка реле: A1 → 12 В+ шины, A2 → контакт «а» дубль-кнопки; контакт «б» дубль-кнопки → «−» (GND). Если реле без встроенного диода — диод 1N4007 параллельно обмотке, катодом (кольцо) к «+»;</li>
+<li>опционально: 2-я группа зелёной кнопки («НЗ» — оповещение) → вход D7, 2-я жила → GND (в программе назначим функцию «вход общего назначения» — в журнале событий будет видно срабатывание именно зелёной кнопки);</li>
+<li>подсветку дубль-кнопки запитайте от шины 12 В по схеме на её наклейке (обычно просто +12 В/− на клеммы индикации — горит, пока нажата).</li>
+</ul>
+<div class="small">Если решите позже заменить дубль-кнопку на кнопку с 3 контактами (НО/НЗ/ОБЩ) —
+реле больше не понадобится: её НЗ-контакт включается в шлейф напрямую, как зелёная.</div></div>
+
+<h3 id="s36">3.6. Порядок работ — чек-лист этапа 1</h3>
+<div class="step"><span class="n">A</span><span class="chk">☐</span><b>Проверка до подачи 12 В</b> (РИП-12 выключен):
+<ul>
+<li>мультиметр, режим «прозвонка»: между шиной «+» и «−» — <b>не должно быть</b> близкого к нулю сопротивления (КЗ). Сопротивление катушки замка — десятки…сотни Ом, это нормально; близкий к 0 Ω — ищите короткое замыкание;</li>
+<li>прозвонка шлейфа: F+–F− при ненажатых кнопках — замкнут (0–1 Ом). Нажать зелёную — разрыв. Нажать дубль — разрыв. Отпустить — снова замкнут;</li>
+<li>прозвонка геркона: дверь закрыта — замкнут, открыта — разомкнут (если наоборот — в программе просто укажем другой «нормальный» режим, см. 3.7);</li>
+<li>визуально: все жилы в клеммниках затянуты, концы не торчат, маркеры проставлены, «раскладка проводов» в дверце E510 заполнена.</li>
+</ul></div>
+<div class="step"><span class="n">B</span><span class="chk">☐</span><b>Подача 12 В</b>: включите РИП-12. Долно быть:
+<ul>
+<li>на E510 — зелёный индикатор PWR и индикатор +12 В, при старте — звуковой сигнал (1–2 коротких гудка);</li>
+<li>индикатор реле D41 (реле 1) — <b>загорится</b> через 1–3 с (команда «закрыть замок»);</li>
+<li>замок включился (слегка гудит, держит дверь). Приложите дверь — заперто ✓.</li>
+</ul>
+Если D41 горит, а замок не включился — см. Рис. 4 (NO1/NC1). Если D41 не горит — смотрите индикаторы E510 и раздел 5.</div>
+<div class="step"><span class="n">C</span><span class="chk">☐</span><b>Прозвон «вживую»</b> (пока программа ещё не настроена — контроллер по умолчанию держит точку заблокированной):
+<ul>
+<li>нажмите кнопку выхода: D41 должен <b>потухнуть</b> на время (≈5 с), замок отпустит, после — снова включится. Если не реагирует — проверка D3/«−»;</li>
+<li>нажмите дубль-кнопку: D41 погаснет (шлейф разорван — режим аварийного открытия). Отпустите — через пару секунд замок снова закроется. То же — зелёной кнопкой (она удерживается до сброса ключом/стеклом — это нормально, пока нажата — всё открыто);</li>
+<li>считыватель: поднесите карту — индикатор считывателя (или LED1 на E510) должен «мигнуть» (приём Wiegand). Дверь пока не откроется — прав не прописано, это нормально.</li>
+</ul></div>
+<div class="step"><span class="n">D</span><span class="chk">☐</span><b>Контроль питания через DCD</b>: после настройки программы (3.7) отключите автомат 220 В —
+в программе Sigur контроллер должен показать «питание от АКБ». Включите автомат — «от сети».
+Если индикатор врет (наоборот) — снимите галочку «Использовать датчик контроля источника питания»
+(это чисто диагностика, без неё система работает нормально) и напишите мне — разберёмся по вашей ревизии РИП-12.</div>
+
+<h3 id="s37">3.7. Настройка в программе Sigur (шаг за шагом)</h3>
+<p class="small">Названия кнопок могут немного отличаться в разных версиях ПО Sigur (у вас 1.6.x). Логика одна и та же. Если чего-то не найдёте — напишите, наведу.</p>
+
+<div class="step"><span class="n">1</span><span class="chk">☐</span>
+Откройте программу <b>«Клиент»</b> на ПК (сервер Sigur запущен). Вкладка <b>«Оборудование»</b> — в списке
+виден ваш E510 (зелёный/онлайн). Выделите его и нажмите <b>«Настройки»</b> (кнопка в правой области вкладки
+или правая кнопка мыши). Откроется окно «Редактирование настроек».</div>
+
+<div class="step"><span class="n">2</span><span class="chk">☐</span>
+Подкладка <b>«Точка доступа 1»</b>:
+<table class="kv">
+<tr><td>Тип точки доступа</td><td><b>Дверь</b></td></tr>
+<tr><td>Порт считывателя «вход»</td><td><b>PORT1</b> (считыватель снаружи)</td></tr>
+<tr><td>Порт считывателя «выход»</td><td><b>PORT2</b> (считыватель внутри)</td></tr>
+<tr><td>Управляющая линия замка (блокировки)</td><td><b>K1</b>; управление — <b>потенциальное</b> («реле включено» = замок заперт)</td></tr>
+<tr><td>Датчик открытия двери</td><td><b>D1</b>; нормальное состояние — «замкнут» (дверь закрыта). Если ваш геркон наоборот — выберите «разомкнут»</td></tr>
+<tr><td>Кнопка запроса прохода «выход»</td><td><b>D3</b>; нормальное состояние — «разомкнут» (кнопка НО)</td></tr>
+<tr><td>Время открытия двери (удержание замка)</td><td>5 с (или по вкусу: 3–10 с)</td></tr>
+</table></div>
+
+<div class="step"><span class="n">3</span><span class="chk">☐</span>
+Подкладка <b>«Точка доступа 2»</b> — пока оставьте <b>незанятой</b> (тип — «нет»/«не выбрана»).
+Подключаем и настраиваем на этапе 2 (раздел 4).</div>
+
+<div class="step"><span class="n">4</span><span class="chk">☐</span>
+Подкладка <b>«Общие»</b>: сначала <b>снимите</b> галочку «Отображать только базовые настройки»,
+появятся все параметры. Установите:
+<ul>
+<li><b>«Использовать датчик пожарной сигнализации»</b> — ☑ (шлейф F+/F− подключён! Без этой галочки аварийные кнопки работать не будут — самая частая ошибка);</li>
+<li><b>«Использовать датчик контроля источника питания»</b> — ☑ (линия DCD от РИП-12);</li>
+<li>«Использовать датчик открытия корпуса» — ☑, только если поставите геркон на дверцу E510 (клемма OPD), иначе ☐;</li>
+<li>индикация считывателей — по умолчанию (LED1/LED2, стрелки «вход/выход»);</li>
+<li>задержка запирания — по умолчанию (замок закроется после закрытия двери).</li>
+</ul></div>
+
+<div class="step"><span class="n">5</span><span class="chk">☐</span>
+Нажмите <b>«Сохранить»/«Применить»</b>. Конфигурация уходит по сети в контроллер (подтверждение в окне / гудок).
+Дождитесь, пока контроллер станет зелёным в списке.</div>
+
+<div class="step"><span class="n">6</span><span class="chk">☐</span>
+<b>Люди и карты</b>: вкладка «Пользователи» (или «Персонал») → создать пользователя (ФИО) →
+<b>прописать карту</b>: в окне пользователя — команда «Зачислить карту/Считать», поднесите карту к
+<b>входному</b> считывателю — гудок, карта сохранена. Прописываем все карты сотрудников.
+(Каждую карту достаточно прописать один раз — работает на всех точках, где ей даны права.)</div>
+
+<div class="step"><span class="n">7</span><span class="chk">☐</span>
+<b>Права доступа</b>: в разделе доступа/режимов создайте «временную зону» (расписание) — для начала
+«круглосуточно» (00:00–24:00, все дни), привяжите её к пользователю(ям) и к точке «Дверь»:
+разрешено <b>вход</b> и <b>выход</b>. Сохраните — база уйдёт в контроллер (контроллер решает пропуск
+сам, автономно, даже если сервер выключен).</div>
+
+<div class="step"><span class="n">8</span><span class="chk">☐</span>
+Вкладка <b>«События»</b> — следите, как появляются события: «карта считана», «дверь открыта»,
+«замок закрыт», «аварийная разблокировка» и т. д. Это ваш главный инструмент проверки.</div>
+
+<h3 id="s38">3.8. Проверка этапа 1 (чек-лист «всё работает»)</h3>
+<table>
+<tr><th>#</th><th>Действие</th><th>Ожидаемый результат</th></tr>
+<tr><td>1</td><td>Карта с правами у внешнего считывателя</td><td>гудок, замок открывается на ~5 с, в событии — «вход», индикатор стрелка «вход»</td></tr>
+<tr><td>2</td><td>Карта у внутреннего считывателя</td><td>замок открывается (режим «выход»)</td></tr>
+<tr><td>3</td><td>Карта без прав</td><td>красный/запрет, событие «отказ»</td></tr>
+<tr><td>4</td><td>Кнопка выхода (внутри)</td><td>замок открывается, событие «запрос кнопкой»</td></tr>
+<tr><td>5</td><td>Дверь открыть и закрыть</td><td>события «дверь открыта/закрыта» (геркон работает); после закрытия замок снова заперт</td></tr>
+<tr><td>6</td><td>Дверь держать открытой &gt; 30 с</td><td>событие «дверь открыта дольше нормы»</td></tr>
+<tr><td>7</td><td>Зелёная кнопка (нажать)</td><td>замок мгновенно открыт, всё держится открытым, пока кнопка не сброслена; событие «пожарная/аварийная разблокировка»; после сброса — замок снова заперт</td></tr>
+<tr><td>8</td><td>Дубль-кнопка (нажать и удерживать)</td><td>замок открыт, пока нажата; отпустили — через задержку заперт</td></tr>
+<tr><td>9</td><td>Выключить автомат 220 В</td><td>РИП-12 перешёл на АКБ, E510 работает, замок держит; в программе — «питание от АКБ»</td></tr>
+<tr><td>10</td><td>Полностью обесточить 12 В (вынуть/выключить РИП-12)</td><td>замок отпустит (дверь открыта — нормально для магнитного замка!), E510 выключится. Включить — всё оживёт, база карт сохранена</td></tr>
+</table>
+
+<!-- ================= 4 ================= -->
+<h2 id="s4">4. ЭТАП 2 — ТУРНИКЕТ Smartec</h2>
+
+<h3 id="s41">4.1. Питание турникета (220 В) ⚡</h3>
+<div class="step"><span class="n">1</span><span class="chk">☐</span>
+Турникет-трипод Smartec питается от <b>220 В</b> (ST-TS010 — 25 Вт). Отдельный автомат <b>B10</b> в щитке,
+кабель ВВГнг 3×1,5 (L, N, PE) к клеммной колодке платы управления (из люка/нижней части корпуса).
+<b>PE обязательно</b> — корпус стальной. Работы — с отключённым автоматом и проверкой напряжения.
+Пока автомат не включайте — сначала подведём «умную» часть.</div>
+
+<h3 id="s42">4.2. Подключение «умной» части</h3>
+<p>Откройте люк управления турникета и <b>сфотографируйте клеммную колодку</b> с подписями — пришлите
+мне, и я подставлю точные названия клемм. Пока — стандартная схема для Smartec ST-TS010:
+управляющий вход «Разблокировка» (OPEN), вход «Тревога» (ALARM, опционально), выводы датчиков
+прохода (опционально) и GND.</p>
+
+<div class="diagram">
+<svg viewBox="0 0 1000 520" role="img" aria-label="Подключение турникета — этап 2">
+  <defs><marker id="a3" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L8,3.5 L0,7 z" fill="#5a6a7e"/></marker></defs>
+  <style>
+    .bx{fill:#fff;stroke:#33475e;stroke-width:2}
+    .cc{fill:#f2f6fb;stroke:#33475e;stroke-width:2.4}
+    .tt{font:600 14px "Segoe UI",Arial;fill:#1c2430}
+    .ts{font:12px "Segoe UI",Arial;fill:#5a6a7e}
+    .term{fill:#fff;stroke:#33475e;stroke-width:1.4}
+    .tl{font:700 11.5px Consolas,monospace;fill:#1c2430}
+    .wp{stroke:#c0392b;stroke-width:2.4;fill:none}
+    .wn{stroke:#333;stroke-width:2.2;fill:none}
+    .w0{stroke:#2e7d32;stroke-width:2;fill:none}
+    .w1{stroke:#1a5fb4;stroke-width:2;fill:none}
+    .wo{stroke:#e67e22;stroke-width:2;fill:none}
+    .lw{font:11px "Segoe UI",Arial;fill:#33475e}
+  </style>
+
+  <!-- 220V -->
+  <rect class="bx" x="20" y="20" width="150" height="60"/>
+  <text class="tt" x="38" y="45">Щиток, B10</text>
+  <text class="ts" x="38" y="63">L · N · PE</text>
+  <path class="wp" d="M170,35 L260,35"/>
+  <path class="wn" d="M170,50 L260,50"/>
+  <path class="wn" d="M170,65 L260,65" stroke="#b8860b"/>
+
+  <!-- Плата турникета -->
+  <rect class="cc" x="260" y="20" width="330" height="200" rx="8"/>
+  <text class="tt" x="280" y="45">Плата управления турникета (Smartec)</text>
+  <rect class="term" x="280" y="60" width="60" height="24"/><text class="tl" x="292" y="77">L</text>
+  <rect class="term" x="280" y="90" width="60" height="24"/><text class="tl" x="290" y="107">N</text>
+  <rect class="term" x="280" y="120" width="60" height="24"/><text class="tl" x="288" y="137">PE</text>
+  <rect class="term" x="360" y="60" width="210" height="24"/><text class="tl" x="368" y="77">«Разблокировка» (OPEN)</text>
+  <rect class="term" x="360" y="90" width="210" height="24"/><text class="ts" x="368" y="107">«Тревога» (ALARM) — опц.</text>
+  <rect class="term" x="360" y="120" width="210" height="24"/><text class="ts" x="368" y="137">датчики прохода S1/S2 — опц.</text>
+  <rect class="term" x="360" y="150" width="210" height="24"/><text class="tl" x="368" y="167">GND (общий)</text>
+  <text class="ts" x="280" y="195">Названия клемм — по фото вашей колодки.</text>
+  <text class="ts" x="280" y="210">«Разблокировка» = кратковременное замыкание на GND.</text>
+
+  <!-- E510 -->
+  <rect class="cc" x="680" y="20" width="300" height="240" rx="8"/>
+  <text class="tt" x="700" y="45">Sigur E510</text>
+  <rect class="term" x="700" y="60" width="120" height="26"/><text class="tl" x="708" y="78">K2: NO2</text>
+  <rect class="term" x="700" y="92" width="120" height="26"/><text class="tl" x="708" y="110">K2: COM2</text>
+  <rect class="term" x="700" y="124" width="120" height="26"/><text class="ts" x="708" y="142">K2: NC2 — нет</text>
+  <rect class="term" x="840" y="60" width="125" height="26"/><text class="tl" x="848" y="78">PORT3 (вход)</text>
+  <rect class="term" x="840" y="92" width="125" height="26"/><text class="tl" x="848" y="110">PORT4 (выход)</text>
+  <rect class="term" x="700" y="160" width="120" height="26"/><text class="tl" x="708" y="178">D2 датчик</text>
+  <rect class="term" x="840" y="124" width="125" height="26"/><text class="tl" x="848" y="142">D4 кл.1 «вход»</text>
+  <rect class="term" x="840" y="156" width="125" height="26"/><text class="tl" x="848" y="174">D5 кл.2 «выход»</text>
+  <rect class="term" x="840" y="188" width="125" height="26"/><text class="ts" x="848" y="206">D6 кл.3 (по надписи)</text>
+  <text class="ts" x="700" y="235">Кабель 12×0,75 из помещения двери (2 считывателя</text>
+  <text class="ts" x="700" y="250">+ 3 клавиши + запас). F+/F− — уже общие (рис. 5).</text>
+
+  <!-- провода -->
+  <path class="w0" d="M570,72 L640,72 L640,73 L700,73"/>
+  <text class="lw" x="580" y="66">NO2 → «Разблокировка»</text>
+  <path class="wn" d="M570,162 L620,162 L620,105 L700,105"/>
+  <text class="lw" x="580" y="180">COM2 → GND турникета</text>
+  <path class="w1" d="M700,173 L660,173 L660,132 L570,132"/>
+  <text class="lw" x="580" y="205">S1/S2 → D2 (если есть)</text>
+
+  <!-- Считыватели турникета -->
+  <rect class="bx" x="20" y="290" width="200" height="60"/>
+  <text class="tt" x="38" y="315">Считыватель «вход»</text>
+  <text class="ts" x="38" y="333">слот на турникете</text>
+  <path class="wp" d="M220,305 L420,305 L420,290 L860,290 L860,73"/>
+  <path class="wn" d="M220,315 L430,315 L430,300 L872,300 L872,85"/>
+  <path class="w0" d="M220,325 L440,325 L440,310 L884,310 L884,97"/>
+  <path class="w1" d="M220,335 L450,335 L450,320 L896,320 L896,109"/>
+  <text class="ts" x="460" y="285">4 жилы: +, −, D0, D1 (питание — с клемм порта или с шины 12 В)</text>
+
+  <rect class="bx" x="20" y="370" width="200" height="60"/>
+  <text class="tt" x="38" y="395">Считыватель «выход»</text>
+  <text class="ts" x="38" y="413">слот на турникете</text>
+  <path class="wp" d="M220,385 L460,385 L460,340 L860,340 L860,109"/>
+  <path class="wn" d="M220,395 L470,395 L470,352 L872,352 L872,121"/>
+  <path class="w0" d="M220,405 L480,405 L480,364 L884,364 L884,133"/>
+  <path class="w1" d="M220,415 L490,415 L490,376 L896,376 L896,145"/>
+
+  <!-- Кнопка 3 клавиши -->
+  <rect class="bx" x="20" y="450" width="200" height="56"/>
+  <text class="tt" x="38" y="474">Кнопка с 3 клавишами</text>
+  <text class="ts" x="38" y="492">каждая клавиша: 2 контакта</text>
+  <path class="wo" d="M220,466 L500,466 L500,388 L900,388 L900,139"/>
+  <path class="wo" d="M220,478 L510,478 L510,400 L908,400 L908,171"/>
+  <path class="wo" d="M220,490 L520,490 L520,412 L916,412 L916,203"/>
+  <path class="wn" d="M220,500 L530,500 L530,430 L924,430 L924,215"/>
+  <text class="ts" x="530" y="520">у каждой клавиши: одна жила → D4/D5/D6, вторая → GND (общая «−»)</text>
+</svg>
+<div class="fig">Рис. 6. Этап 2: турникет на том же контроллере. Реле K2 — «сухой контакт» (не подаёт питания на турникет)</div>
+</div>
+
+<div class="step"><span class="n">2</span><span class="chk">☐</span>
+<b>Проложите кабель в помещение турникета</b> (12×0,75 или эквивалент) по той же трассе, что и этап 1,
+и подключите по Рис. 6:
+<ul>
+<li><b>NO2</b> (реле K2) → вход «Разблокировка» турникета; <b>COM2</b> → клемма GND платы турникета.
+Реле E510 — гальванически развязанный «сухой контакт»: оно просто кратко замыкает эти две клеммы.
+Никакого питания от контроллера на турникет не подаётся!</li>
+<li>считыватели: 4 жилы каждый в PORT3/PORT4 (как на этапе 1; если в порту нет клемм питания —
++12 В/− берите с шины РИП-12 рядом, D0/D1 — в порт);</li>
+<li>кнопка с 3 клавишами: у каждой клавиши два провода — один в D4/D5/D6, второй в GND (общий);</li>
+<li>датчики прохода (если на плате турникета есть их выводы): в D2 (+ запасной вход), по типу «нормально замкнут» —
+см. подпись на плате; если выводов нет — пропустите, турникет будет работать без учёта факта прохода.</li>
+</ul></div>
+
+<h3 id="s43">4.3. Кнопка с тремя клавишами — как назначим</h3>
+<p>Точные назначения — по надписям на клавишах. Типовой сценарий:</p>
+<table>
+<tr><th>Клавиша</th><th>Если написано</th><th>Назначение в программе</th></tr>
+<tr><td>1</td><td>«Вход» / стрелка ←</td><td>«Кнопка запроса прохода «вход»» точки «Турникет» — штанга падает на 1 проход</td></tr>
+<tr><td>2</td><td>«Выход» / стрелка →</td><td>«Кнопка запроса прохода «выход»» — то же, направление «выход»</td></tr>
+<tr><td>3</td><td>«Тревога» / звонок</td><td>вход общего назначения (событие на сервер) — или вход «Тревога» турникета (блокировка + звук)</td></tr>
+<tr><td>3</td><td>«24 ч» / «Свободный проход»</td><td>напишите мне — реализуются 2–3 способа (удержание открытия / режим через ПО)</td></tr>
+</table>
+
+<h3 id="s44">4.4. Настройка в программе (этап 2)</h3>
+<div class="step"><span class="n">1</span><span class="chk">☐</span>
+«Оборудование» → E510 → «Настройки» → подкладка <b>«Точка доступа 2»</b>:
+<table class="kv">
+<tr><td>Тип точки доступа</td><td><b>Турникет</b></td></tr>
+<tr><td>Порт считывателя «вход»</td><td>PORT3</td></tr>
+<tr><td>Порт считывателя «выход»</td><td>PORT4</td></tr>
+<tr><td>Линия разблокировки «На вход»</td><td><b>K2</b>, управление — <b>импульсное</b>, длительность импульса <b>300 мс</b> (если штанга не падает — 500, затем 1000 мс)</td></tr>
+<tr><td>Линия разблокировки «На выход»</td><td>тоже <b>K2</b> (у турникета один вход «Разблокировка» — один импульс открывает на 1 проход в обе стороны). Если программа не даёт выбрать одно реле на оба направления — напишите мне, решим (есть запасные варианты: K3/OK-выходы)</td></tr>
+<tr><td>Датчики прохода</td><td>D2 (если подключены) — по типу датчиков; нет — «не использовать»</td></tr>
+<tr><td>Кнопки</td><td>D4 — «запрос «вход»», D5 — «запрос «выход»», D6 — по надписи на клавише (нормальное состояние всех — «разомкнут»)</td></tr>
+</table></div>
+<div class="step"><span class="n">2</span><span class="chk">☐</span>
+«Общие» — ничего нового (шлейф и DCD уже включены — они общие для всех точек контроллера).
+Сохранить → применить.</div>
+<div class="step"><span class="n">3</span><span class="chk">☐</span>
+Права доступа: тем же пользователям, что и на двери, разрешите «Турникет»: вход/выход (по логике проходной:
+например, снаружи — только «вход» по карте, изнутри — «выход» по карте или по кнопке).</div>
+
+<h3 id="s45">4.5. Проверка этапа 2</h3>
+<table>
+<tr><th>#</th><th>Действие</th><th>Ожидаемый результат</th></tr>
+<tr><td>1</td><td>Включить автомат турникета (220 В)</td><td>платка жива, пиктограммы горят, штанги заблокированы</td></tr>
+<tr><td>2</td><td>Карта с правами у «входного» считывателя</td><td>зелёная пиктограмма/стрелка, штанга «падает», 1 проход, штанга встаёт; событие «вход»</td></tr>
+<tr><td>3</td><td>Карта у «выходного»</td><td>то же в обратную сторону</td></tr>
+<tr><td>4</td><td>Клавиша 1 / 2 кнопки</td><td>проход без карты (запрос кнопкой)</td></tr>
+<tr><td>5</td><td>Зелёная кнопка / дубль</td><td>штанга падает и <b>остаётся</b> упавшей (режим «пожар» на всех точках); дверь тоже открыта; сброс кнопки — штатный режим</td></tr>
+<tr><td>6</td><td>Выключить 220 В турникета</td><td>«антипаника»: штанги падают (свободный проход) — это проектное поведение</td></tr>
+<tr><td>7</td><td>Пройти «не по себе» (толкнуть в закрытую)</td><td>красная пиктограмма/звук (если настроен), события — если есть датчики прохода</td></tr>
+</table>
+
+<div class="ok"><b>Готово.</b> После обоих этапов: у вас дверь (карта в обе стороны, кнопка выхода, экстренное
+открытие), турникет (карта + кнопка, антипаника), единый журнал событий на ПК, резервное питание 12 В
+от АКБ и единая кнопка экстренного открытия для всего.</div>
+
+<!-- ================= 5 ================= -->
+<h2 id="s5">5. Если что-то не работает</h2>
+<table>
+<tr><th>Симптом</th><th>Что проверить (по порядку)</th></tr>
+<tr><td>Замок не заперт после старта (D41 не горит)</td><td>есть ли 12 В на шине; контроллер жив (PWR); в программе точка 1 «Дверь» и K1 назначены, «потенциальное управление»; сохранена ли конфигурация (контроллер зелёный в списке)</td></tr>
+<tr><td>D41 горит, замок не включён</td><td>NO1/NC1 перепутаны — поменять местами; цепь: «+»→замок→COM1→NO1→«−»; варистор и клеммы замка</td></tr>
+<tr><td>Считыватель «молчит» (карта не читается)</td><td>1) D0/D1 перепутаны — поменять; 2) питание считывателя (12 В на нём?); 3) порт: PORT1/2 назначены этой точке; 4) индикаторы TX/RX на E510</td></tr>
+<tr><td>Считыватель читает, но дверь не открывается</td><td>права карты (временная зона, направление); события — «отказ» или «карта не найдена»?</td></tr>
+<tr><td>Кнопка выхода не действует</td><td>прозвон: D3–GND замыкается при нажатии; в программе D3 = «кнопка «выход»», «разомкнут»; D3 не занят другой функцией</td></tr>
+<tr><td>Экстренные кнопки не открывают</td><td><b>90% — не стоит галочка «Использовать датчик пожарной сигнализации»</b> (Общие → снять «только базовые»); далее: прозвон шлейфа (рис. 5); НЗ-группа зелёной кнопки</td></tr>
+<tr><td>Дубль-кнопка рвёт шлейф только «в одну сторону»</td><td>контакт реле в шлейфе должен быть НОРМАЛЬНО-ЗАМКНУТЫЙ; обмотка: A1–A2 (12 В через кнопку); диод на обмотке</td></tr>
+<tr><td>«Дверь открыта» постоянно (хотя дверь закрыта)</td><td>геркон: полярность/положение; в программе «нормальное состояние» датчика — по факту (закрыта = замкнут/разомкнут)</td></tr>
+<tr><td>Контроллер не виден в программе</td><td>патч-корд, индикаторы TX/RX на E510; DHCP; IP-конфликт; DHCP/статика — настройка 6.3 инструкции E510; сброс IP (перемычка/кнопка IP RESET на плате, если потеряли доступ)</td></tr>
+<tr><td>Турникет не реагирует на K2</td><td>импульс 300→500→1000 мс; NO2/COM2 перепутаны; на плате турникета есть питание 220 В; вход «Разблокировка» именно тот (по фото колодки)</td></tr>
+<tr><td>РИП-12 не держит нагрузку / отключается</td><td>зажимы АКБ; ток нагрузки (табл. 1.2); «Состояние АКБ»; если КЗ-отключения — ищите КЗ на шине 12 В (покажи на «+»/«−» прозвонку при выключенном)</td></tr>
+</table>
+
+<!-- ================= APP A ================= -->
+<h2 id="appA">Приложение A. Шпаргалка по клеммам E510 (наша раскладка)</h2>
+<table>
+<tr><th>Клемма</th><th>Функция</th><th>К чему подключено</th></tr>
+<tr><td class="term">+ , −</td><td>питание 10…15 В, до 250 мА</td><td>РИП-12 «ВЫХОД +/−» (отсюда же берётся 12 В для замка по рис. 4)</td></tr>
+<tr><td class="term">DCD</td><td>контроль питания (0…0,5 В = «от сети»)</td><td>РИП-12 «Авария сети» (OK); 2-я жила — на «−». Галочка в «Общих»!</td></tr>
+<tr><td class="term">OPD</td><td>вскрытие корпуса (опц.)</td><td>геркон на дверце E510 (НЗ). Не подключали — галочку не ставить</td></tr>
+<tr><td class="term">F+ , F− , VF</td><td>шлейф аварийной разблокировки (рвёт = открытие). Гальванически развязан</td><td>НЗ реле (от дубль-кнопки) + НЗ зелёной кнопки, последовательно. VF — свободно</td></tr>
+<tr><td class="term">PORT1</td><td>порт считывателя 1</td><td>считыватель «вход» двери (4 жилы: +, −, D0, D1)</td></tr>
+<tr><td class="term">PORT2</td><td>порт считывателя 2</td><td>считыватель «выход» двери</td></tr>
+<tr><td class="term">PORT3</td><td>порт считывателя 3</td><td>считыватель «вход» турникета (этап 2)</td></tr>
+<tr><td class="term">PORT4</td><td>порт считывателя 4</td><td>считыватель «выход» турникета (этап 2)</td></tr>
+<tr><td class="term">X1: NO1/COM1/NC1</td><td>реле 1 (30 В, 5 А НО / 3 А НЗ), индикатор D41</td><td>магнитный замок: замок→COM1, NO1→«−»; реле включено = заперт</td></tr>
+<tr><td class="term">X2: NO2/COM2/NC2</td><td>реле 2, индикатор D48</td><td>турникет: NO2→«Разблокировка», COM2→GND турникета; импульс (этап 2)</td></tr>
+<tr><td class="term">X3, X4</td><td>реле 3/4 (D55, D59)</td><td>запас</td></tr>
+<tr><td class="term">D1</td><td>вход 1 (сухой контакт / ОК)</td><td>геркон двери (норма — замкнут)</td></tr>
+<tr><td class="term">D2</td><td>вход 2</td><td>датчик прохода турникета (этап 2, опц.)</td></tr>
+<tr><td class="term">D3</td><td>вход 3</td><td>кнопка выхода двери (НО)</td></tr>
+<tr><td class="term">D4, D5, D6</td><td>входы 4–6</td><td>клавиши 1/2/3 кнопки турникета (НО, 2-я жила в GND)</td></tr>
+<tr><td class="term">D7</td><td>вход 7</td><td>2-я группа зелёной кнопки «оповещение» (опц.)</td></tr>
+<tr><td class="term">D8…D10</td><td>входы 8–10</td><td>запас</td></tr>
+<tr><td class="term">O1…O5 (J26)</td><td>выходы «открытый коллектор» (30 В, 0,2 А)</td><td>запас (индикация, стороннее оборудование)</td></tr>
+<tr><td class="term">LED1, LED2</td><td>индикация считывателей (5 В)</td><td>автоматически — стрелки вход/выход (по умолчанию)</td></tr>
+<tr><td class="term">RJ45</td><td>Ethernet 10/100</td><td>коммутатор → сервер Sigur</td></tr>
+</table>
+<p class="small">Назначение функций (что делать при срабатывании D1…D10, тип управления K1/K2, пороги)
+задаётся в программе «Клиент» — «Настройки» контроллера. Клеммы «подписаны» на плате именами функций,
+как в таблице.</p>
+
+<!-- ================= APP B ================= -->
+<h2 id="appB">Приложение B. Кабельный план на витой паре (LAN-кабель)</h2>
+
+<h3>B1. Можно ли всё соединить витой парой?</h3>
+<p><b>Да — это стандартная практика СКУД.</b> Витая пара (UTP cat5e) — 8 жил (4 витых пары), каждая
+жила одножильная ~0,5 мм диаметром = <b>0,20 мм²</b>, изоляция рассчитана на ~300 В. Для наших цепей
+(12 В, миллиамперы + один замок) подходит отлично, а для Wiegand она даже <b>лучше</b> обычного
+шлейфового кабеля: витая пара сама гасит помехи.</p>
+
+<table>
+<tr><th>Цепь</th><th>Витая пара?</th><th>Как</th></tr>
+<tr><td>Считыватели (Wiegand D0/D1 + 12 В)</td><td class="ok" style="background:#e9f6ec"><b>Идеально</b></td><td>6 жил (3 пары): каждая пара — «сигнал + GND». До 100–150 м.</td></tr>
+<tr><td>Кнопки, герконы, датчики (сухой контакт)</td><td class="ok" style="background:#e9f6ec"><b>Отлично</b></td><td>2 жилы (1 пара), ток — миллиамперы, длина не ограничена практически.</td></tr>
+<tr><td>Шлейф аварийной разблокировки F+/F−</td><td class="ok" style="background:#e9f6ec"><b>Отлично</b></td><td>1 пара на шлейф + 1 пара на 2-ю группу кнопки.</td></tr>
+<tr><td>Питание контроллера E510 (250 мА)</td><td class="ok" style="background:#e9f6ec"><b>Да</b></td><td>2+2 жилы (2 пары параллельно) — с запасом.</td></tr>
+<tr><td>Реле K2 → вход «Разблокировка» турникета</td><td class="ok" style="background:#e9f6ec"><b>Да</b></td><td>«Сухой контакт», тока практически нет — 1 пара.</td></tr>
+<tr><td><b>Магнитный замок (0,45–1,0 А)</b></td><td style="background:#fdf3e3"><b>Да, но параллелить жилы</b></td><td>Минимум <b>2+2</b> (2 пары), при токе ≥0,8 А или длине &gt;15 м — <b>3+3</b>. См. B3–B4.</td></tr>
+<tr><td>220 В (щиток → РИП-12, → турникет)</td><td class="danger" style="background:#fdeaea"><b>НЕТ! Категорически</b></td><td>Только <b>ВВГнг(А)-LS 3×1,5</b> (L, N, PE). Витая пара на 220 В — нарушение ПУЭ и пожарная опасность.</td></tr>
+</table>
+
+<h3>B2. Сначала проверьте свой кабель (3 быстрых теста)</h3>
+<div class="step"><span class="n">1</span><span class="chk">☐</span>
+<b>Одножильный или многожильный?</b> Отрежьте 5 см и посмотрите на жилу:
+<ul>
+<li><b>одна цельная медная жилка</b> (ломается при перегибе) — отлично, это «кабель для СКС»: идеально для
+стационарной прокладки и <b>лучше всего держится в винтовых клеммах</b>;</li>
+<li><b>пучок тонких проволочек</b> — это патч-корд (для шнуров). Тоже годится, но в винтовые клеммы такой
+провод <b>обязательно залудить</b> (олово) или обжать наконечником, иначе расползётся и ослабнет.</li>
+</ul></div>
+
+<div class="step"><span class="n">2</span><span class="chk">☐</span>
+<b>Медь или CCA («меднённый алюминий»)?</b> <span class="danger" style="display:inline">Важно!</span>
+Дешёвый LAN-кабель часто бывает CCA — алюминий с тонким медным покрытием.
+<b>Проверка:</b> поскоблите жилу ножом/надфилем 5 мм. Медь — <b>желтовато-рыжая</b> по всей глубине.
+Алюминий — <b>серебристо-белый</b>. Ещё признаки: кабель подозрительно лёгкий и мягкий; на срезе жила
+«стеклянная» и ломается от 2–3 перегибов.
+<ul>
+<li><b>Медь</b> — для наших целей подходит полностью.</li>
+<li><b>CCA</b> — сопротивление в <b>1,6 раза выше</b> и ломкий: годится только на сигнальные линии
+(кнопки, герконы, считыватели <b>на коротких расстояниях</b>). <b>Для замка — не использовать:</b>
+берём отдельный медный кабель 2×1,5 (ШВВП/ПуГВ) или параллелим 3+3 и обязательно замеряем
+напряжение прямо на замке (B4).</li>
+</ul></div>
+
+<div class="step"><span class="n">3</span><span class="chk">☐</span>
+<b>Экранированный (FTP/SFTP) или нет?</b> Экран (фольга) полезен, если трасса идёт рядом с силовыми
+кабелями 220 В. Если экранированный — <b>заземляйте экран только с одной стороны</b> (со стороны
+контроллера), иначе получите «земляную петлю» и помехи. Для ваших коротких трасс экран не обязателен.</div>
+
+<h3>B3. Сколько тока выдержит жила витой пары?</h3>
+<p>Жила 0,20 мм² по нагреву держит порядка 1–1,5 А (для сравнения: PoE+ гонит по жиле 0,6 А на 100 м —
+норма). Но в цепях <b>12 В</b> ограничивает не нагрев, а <b>падение напряжения</b>: потерять 2–3 В из 13,6 В
+— это уже «замок держит слабо» и «контроллер перезагружается». Поэтому жилы параллелим.</p>
+
+<table>
+<tr><th>Сколько жил в параллель</th><th>Надёжный ток*</th><th>Когда применять</th></tr>
+<tr><td>1+1 (одна пара)</td><td>до 0,3 А</td><td>считыватели, кнопки, датчики, шлейф, реле K2</td></tr>
+<tr><td>2+2 (две пары)</td><td>до 0,8 А</td><td>питание E510; замок до 0,5 А (короткие линии)</td></tr>
+<tr><td>3+3 (три пары)</td><td>до 1,2 А</td><td><b>замок 0,8–1,0 А</b> или линия к замку длиннее 15 м</td></tr>
+<tr><td>4+4 (все жилы)</td><td>до 1,5 А</td><td>запас; но тогда в кабеле не остаётся жил на датчики</td></tr>
+</table>
+<p class="small">*С запасом, при длине до 20 м. Если сомневаетесь — <b>замерьте напряжение на приборе под
+нагрузкой</b> (B4) — это единственная по-настоящему надёжная проверка.</p>
+
+<h3>B4. Падение напряжения — главная ловушка 12 В</h3>
+<p>Формула: ΔU = I × 2 × L × 0,09 / N, где I — ток (А), L — длина в один конец (м),
+N — сколько жил в параллель на одну полярность, 0,09 Ом/м — сопротивление медной жилы 0,20 мм².</p>
+
+<table>
+<tr><th>Длина (в один конец)</th><th>Замок 0,5 А</th><th>Замок 1,0 А</th><th>E510 (0,25 А)</th><th>Считыватель (0,1 А)</th></tr>
+<tr><td>5 м</td><td>1 пара = 0,45 В ✓</td><td>1 пара = 0,9 В ✓</td><td>1 пара ✓</td><td>1 пара ✓</td></tr>
+<tr><td>10 м</td><td>1 пара = 0,9 В ✓</td><td style="background:#fdf3e3">1 пара = 1,8 В → нужно <b>2+2</b></td><td>1 пара ✓</td><td>1 пара ✓</td></tr>
+<tr><td>15 м</td><td style="background:#fdf3e3">1 пара = 1,35 В → нужно <b>2+2</b></td><td>2+2 = 1,35 В ✓ / лучше <b>3+3</b></td><td>1 пара ✓</td><td>1 пара ✓</td></tr>
+<tr><td>20 м</td><td>2+2 = 0,9 В ✓</td><td><b>3+3</b> = 1,2 В ✓</td><td>2+2 ✓</td><td>1 пара ✓</td></tr>
+<tr><td>30 м</td><td>2+2 = 1,35 В ✓</td><td style="background:#fdeaea">→ берите отдельный кабель <b>2×1,5</b></td><td>2+2 ✓</td><td>1 пара ✓</td></tr>
+</table>
+
+<div class="ok"><b>Золотое правило.</b> Напряжение <b>на клеммах замка при включённом замке</b> должно быть
+<b>не ниже 11,5 В</b> (лучше 12–13 В). Купите/возьмите мультиметр, замкните дверь, чтобы замок был
+под током, и измерьте прямо на его клеммах, а не на блоке питания. Если меньше 11,5 В — добавьте
+ещё одну пару жил или проложите к замку отдельный кабель 2×1,5.</div>
+
+<h3>B5. Единая раскладка жил (заведите её на весь объект)</h3>
+<p>Стандарт T568B — пары и цвета: <b>оранжевая</b> (1 бело-ор., 2 ор.), <b>зелёная</b> (3 бело-зел., 6 зел.),
+<b>синяя</b> (4 син., 5 бело-син.), <b>коричневая</b> (7 бело-кор., 8 кор.).
+Договоритесь раз и навсегда и <b>подпишите в дверце E510</b>:</p>
+
+<table>
+<tr><th>Пара</th><th>Назначение (стандарт на объекте)</th></tr>
+<tr><td style="background:#e8f0fb"><b>Синяя</b> (син. / бело-син.)</td><td><b>Питание 12 В:</b> синий = «+12 В», бело-синий = «−» (GND). Везде, где нужно питание.</td></tr>
+<tr><td style="background:#e8f0fb"><b>Оранжевая</b> (ор. / бело-ор.)</td><td><b>Wiegand D0</b> (оранжевый) + GND (бело-оранжевый). Для сухих контактов — любой сигнал №1.</td></tr>
+<tr><td style="background:#e8f0fb"><b>Зелёная</b> (зел. / бело-зел.)</td><td><b>Wiegand D1</b> (зелёный) + GND (бело-зелёный). Для сухих контактов — сигнал №2.</td></tr>
+<tr><td style="background:#f2f2f2"><b>Коричневая</b> (кор. / бело-кор.)</td><td><b>Резерв</b>: вторая пара питания (для замка), сигнал №3, вторая группа кнопки.</td></tr>
+</table>
+<p class="small"><b>Зачем «сигнал + GND» именно парой:</b> витая пара — это и есть пара «прямой + обратный»;
+если пустить сигнал и его «землю» по одной витой паре, наводка от помех гасится сама. Поэтому
+D0 винтите с GND в одной паре, D1 — в другой. <b>Никогда не пускайте «+12 В» и «D0» в одной паре!</b></p>
+
+<h3>B6. Полный кабельный план (что и куда тянуть)</h3>
+<table>
+<tr><th>№</th><th>Линия</th><th>Кабель / жилы</th><th>Раскладка</th></tr>
+
+<tr><td colspan="4" style="background:#e8eef6"><b>Этап 1 — дверь</b></td></tr>
+<tr><td>1</td><td>Щиток 220 В → РИП-12</td><td><b>ВВГнг(А)-LS 3×1,5</b></td><td>L, N, PE (автомат B10)</td></tr>
+<tr><td>2</td><td>РИП-12 «ВЫХОД» → клеммы «+» «−» E510</td><td>витая пара, <b>2+2</b> (синяя + коричневая)</td><td>синий+коричневый = «+»; бело-синий+бело-коричневый = «−»</td></tr>
+<tr><td>3</td><td>РИП-12 «Авария сети» → E510 <span class="term">DCD</span></td><td>витая пара, 1 пара (если РИП рядом — кусок любого)</td><td>оранжевый = DCD, бело-оранжевый = «−»</td></tr>
+<tr><td>4</td><td>E510 <span class="term">PORT1</span> → считыватель «вход» (снаружи)</td><td>витая пара, <b>3 пары</b> (6 жил)</td><td>синяя = +12/GND; оранжевая = D0/GND; зелёная = D1/GND</td></tr>
+<tr><td>5</td><td>E510 <span class="term">PORT2</span> → считыватель «выход» (внутри)</td><td>витая пара, <b>3 пары</b> (6 жил)</td><td>то же, что №4</td></tr>
+<tr><td>6</td><td>E510 <span class="term">X1</span> → <b>магнитный замок</b></td><td>витая пара, <b>2+2</b> (или 3+3 — см. B4)</td><td>синяя + коричневая параллельно: «+» = син.+кор., «−» = бело-син.+бело-кор.</td></tr>
+<tr><td>7</td><td>E510 <span class="term">D1</span> → геркон двери</td><td>в кабеле №6, зелёная пара (2 жилы)</td><td>зелёный = D1, бело-зелёный = «−»</td></tr>
+<tr><td>8</td><td>E510 <span class="term">D3</span> → кнопка выхода</td><td>витая пара, 1 пара (или из кабеля №5)</td><td>коричневый = D3, бело-коричневый = «−»</td></tr>
+<tr><td>9</td><td>E510 <span class="term">F+/F−</span> → зелёная кнопка + реле дубля</td><td>витая пара, <b>2 пары</b></td><td>синяя = шлейф (F+/F−); зелёная = 2-я группа кнопки → D7</td></tr>
+<tr><td>10</td><td>Дубль-кнопка → реле + подсветка</td><td>витая пара, 2 пары</td><td>оранжевая = контакты кнопки (в цепь обмотки реле); коричневая = +12/− подсветки</td></tr>
+<tr><td>11</td><td>E510 <span class="term">RJ45</span> → коммутатор</td><td><b>патч-корд</b> (готовый)</td><td>—</td></tr>
+
+<tr><td colspan="4" style="background:#e8eef6"><b>Этап 2 — турникет (соседнее помещение)</b></td></tr>
+<tr><td>12</td><td>Щиток 220 В → турникет</td><td><b>ВВГнг(А)-LS 3×1,5</b></td><td>L, N, PE (отдельный автомат B10)</td></tr>
+<tr><td>13</td><td>E510 <span class="term">PORT3</span> + <span class="term">PORT4</span> → оба считывателя турникета</td><td><b>два</b> кабеля витой пары (по одному на считыватель) — см. примечание ниже</td><td>каждый кабель: синяя = +12/GND, оранжевая = D0/GND, зелёная = D1/GND, коричневая = резерв</td></tr>
+<tr><td>14</td><td>E510 <span class="term">X2 (NO2/COM2)</span> → вход «Разблокировка» турникета</td><td>витая пара, 1 пара</td><td>синий = NO2, бело-синий = COM2 → GND турникета. Тока нет — любые жилы.</td></tr>
+<tr><td>15</td><td>E510 <span class="term">D4/D5/D6</span> → кнопка с 3 клавишами</td><td>витая пара, <b>4 жилы</b> (3 сигнала + общий GND)</td><td>оранжевый = D4, зелёный = D5, коричневый = D6, бело-синий = общий «−»</td></tr>
+<tr><td>16</td><td>E510 <span class="term">D2</span> → датчик прохода турникета (опц.)</td><td>из кабеля №15, свободная жила</td><td>бело-коричневый = D2</td></tr>
+</table>
+
+<div class="warn"><b>Про линию №13 (два считывателя турникета).</b> Полноценно на один считыватель нужно
+<b>4 жилы</b> (+12, GND, D0, D1), а по уму — 6 (каждый сигнал с отдельным GND в паре). На два считывателя
+это 8–12 жил, то есть <b>одного LAN-кабеля мало</b>. Решения, от лучшего к экономному:
+<ol>
+<li><b>Лучшее:</b> проложите <b>два</b> LAN-кабеля (по одному на считыватель) — по 3 пары на каждый, всё по уму, есть резерв.</li>
+<li><b>Допустимое:</b> один кабель, <b>4+4 жилы</b>: считыватель А — синяя (+12/GND) и оранжевая (D0/D1);
+считыватель Б — коричневая (+12/GND) и зелёная (D0/D1). Здесь D0 и D1 идут <b>в одной паре друг с другом</b>
+(а не с GND) — это работает на коротких линиях (10–20 м), но чуть хуже по помехам. Для соседнего
+помещения — нормально.</li>
+</ol>
+Турникет — металлическая коробка и рядом мотор: если потом появятся «случайные» проходы или пропуски
+карт — переложите по варианту 1.</div>
+
+<h3>B7. Как заделывать витую пару в клеммы</h3>
+<ul>
+<li><b>Лучше всего — WAGO 221-412/413</b> (рычажковые): они нормально держат и одножильный 0,2 мм², и
+многожильный. Ничего обжимать не нужно.</li>
+<li><b>Винтовые клеммы E510</b> (съёмные клеммники): одножильная жила заходит отлично. Многожильную
+<b>обязательно залудите</b> (олово с канифолью) или обожмите гильзой, иначе пучок расползётся и контакт
+ослабнет через месяц. После затяжки — дёрните каждый проводник пинцетом: не вытягивается?</li>
+<li><b>Параллелить жилы</b> (для замка): скрутите две жилы вместе и <b>пропаяйте</b>, или вставьте обе в
+одну клемму WAGO (допускается), или обожмите одну гильзу на две жилы. Просто скрутка без пайки/гильзы
+в силовой цепи — плохо: окислится и начнёт греться.</li>
+<li><b>Не зачищайте лишнее:</b> 6–8 мм оголённой меди, не больше, иначе оголённый участок может
+замкнуть на соседнюю клемму.</li>
+<li><b>Маркируйте оба конца</b> каждого кабеля (бирка/скотч с надписью: «счит. вход», «замок», «шлейф»).
+Вытащите потом один кабель из пучка — и сразу поймёте, что это.</li>
+</ul>
+
+<h3>B8. Чего нельзя</h3>
+<ul>
+<li><b class="danger" style="display:inline">⚡ Не тяните 220 В витой парой</b> — ни при каких обстоятельствах
+(ни РИП-12, ни турникет). Только ВВГнг(А)-LS 3×1,5 с медными жилами и заземлением PE.</li>
+<li>Не кладите витую пару <b>в один пучок/лоток с кабелями 220 В</b> — держите расстояние ≥50 см,
+пересечения — только под 90° (это прямое требование инструкции E510).</li>
+<li>Не используйте витую пару <b>на улице / в сыром помещении</b> без защиты: обычный UTP от влаги
+разрушается. Улица — только кабель с PE-оболочкой (уличный) или в гофре с герметизацией.</li>
+<li>Не наращивайте сигнальные кабели скрутками — по инструкции E510 удлинение сигнальных линий
+допускается <b>только пайкой</b>. Лучше проложите цельный кусок от точки до точки: бухта у вас есть.</li>
+<li>Не пускайте питание замка <b>в одном кабеле с Wiegand-линиями</b>, если есть свободные жилы/кабель:
+при отключении замка (индуктивный всплеск) возможны помехи на чтении карт. Варистор на замке
+(из комплекта E510) эту проблему почти снимает, но раздельная прокладка надёжнее. С датчиками
+и кнопками (сухие контакты) замок в одном кабеле — нормально.</li>
+</ul>
+
+<footer class="small" style="margin-top:40px;border-top:1px solid var(--line);padding-top:12px">
+Документ составлен по: «Контроллер Sigur E510. Описание и инструкция по эксплуатации» (sigur.com, ред. 16.08.2024) —
+разделы 6.5/6.6 (шлейф пожарной разблокировки), 7.3 (типовые конфигурации «Две двери», «Турникет»), 9.1 (замки),
+4.2 (электрические характеристики); данные РИП-12 (Болид) — данные производителя; Smartec ST-TS010 — данные производителя.
+Если на фото ваших приборов подписи клемм отличаются — пришлите фото, поправлю схему под ваши приборы.
+</footer>
+
+</div>
+</body>
+</html>

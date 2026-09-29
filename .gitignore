@@ -1,0 +1,10 @@
+# служебное — в репозиторий не попадает
+.ssh/
+_ref/
+__pycache__/
+*.pyc
+.arena/
+Thumbs.db
+.sudo_as_admin_successful
+.gitconfig
+uploads/
