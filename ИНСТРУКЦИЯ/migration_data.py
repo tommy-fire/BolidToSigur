@@ -4,17 +4,6 @@ No SQL writes. Binary/technical source fields retained in the snapshot, not disc
 import base64, datetime, hashlib, io, json, re, shutil
 from pathlib import Path
 
-FIELD_RU = {
- 'birthdate':'Дата рождения','datebirth':'Дата рождения','address':'Прописка',
- 'pasportn':'Паспорт РФ','pasportnum':'Паспорт РФ','passportn':'Паспорт РФ',
- 'dokumn':'Паспорт РФ','dokumnumber':'Паспорт РФ','dokumnos':'Паспорт РФ',
- 'pasportdate':'Дата выдачи паспорта','dokumdate':'Дата выдачи паспорта',
- 'pasportkem':'Кем выдан паспорт','pasportaddress':'Адрес регистрации',
- 'datedocument':'Дата выдачи паспорта','kodpodr':'Код подразделения (паспорт)',
- 'kem':'Кем выдан паспорт','email':'Электронная почта',
- 'start':'Действует с (Орион)', 'sex':'Пол','phonehome':'Домашний телефон',
-}
-
 def normalize_expiry(raw):
     raw=str(raw or '').strip()
     if not raw: return ''
@@ -26,6 +15,70 @@ def normalize_expiry(raw):
     if dt.time()!=datetime.time() or dt.tzinfo:
         raise ValueError('Есть время/часовой пояс: настройте срок вручную, не округляйте')
     return dt.strftime('%d.%m.%Y')
+
+def normalize_access(raw):
+    """Exact local date/time; no implicit timezone conversion or rounding."""
+    raw=str(raw or '').strip()
+    if not raw:return ''
+    for fmt in ('%d.%m.%Y %H:%M:%S','%d.%m.%Y %H:%M','%Y-%m-%d %H:%M:%S','%d.%m.%Y','%Y-%m-%d'):
+        try:return datetime.datetime.strptime(raw,fmt).strftime('%d.%m.%Y %H:%M:%S')
+        except ValueError:pass
+    try:dt=datetime.datetime.fromisoformat(raw)
+    except ValueError:raise ValueError('Неизвестная дата/время')
+    if dt.tzinfo or dt.microsecond:raise ValueError('Часовой пояс/доли секунды требуют явного решения')
+    return dt.strftime('%d.%m.%Y %H:%M:%S')
+
+def agreed_personal(p, warnings, pid):
+    from safe_w34 import value
+    birth=value(p,'BirthDate','DateBirth'); passport=value(p,'PasportN','PasportNum','PassportN','DokumN','DokumNumber','DokumNos')
+    parts=[]
+    for label,fields in [('Выдан',('PasportDate','DokumDate','DateDocument')),('Кем выдан',('PasportKem','Kem')),('Код подразделения',('KodPodr',))]:
+        v=value(p,*fields)
+        if v:parts.append(label+': '+v)
+    passport='; '.join(filter(None,[passport]+parts))
+    address=value(p,'Address','PasportAddress')
+    note=value(p,'Note','Notes','Comment','Comments','Remark','Remarks','Примечание','Примечания')
+    found={}
+    duplicates=set()
+    for line in note.splitlines():
+        m=re.fullmatch(r'\s*(Дата рождения|Паспорт РФ|Прописка)\s*:\s*(.*?)\s*',line,re.I)
+        if m:
+            label=m[1].lower()
+            if label in found and found[label]!=m[2]:
+                warnings.append({'SourcePersonID':pid,'Field':'Примечание','Reason':'Повтор разных значений: '+label})
+                duplicates.add(label)
+                found[label]=''
+            elif label not in duplicates:found[label]=m[2]
+    conflicts=set()
+    vals=[birth,passport,address]
+    for i,label in enumerate(('дата рождения','паспорт рф','прописка')):
+        if vals[i] and found.get(label) and vals[i]!=found[label]:
+            conflicts.add(i)
+            warnings.append({'SourcePersonID':pid,'Field':label,'Reason':'Разные значения в отдельном поле и примечании; дополнительное поле не заполнено, требуется сверка'})
+        vals[i]=vals[i] or found.get(label,'')
+    if vals[0]:
+        try:vals[0]=normalize_expiry(vals[0])
+        except ValueError:
+            warnings.append({'SourcePersonID':pid,'Field':'Дата рождения','Reason':'Не распознана дата; оставлена в примечании, поле даты пустое'})
+    if note and not found and not vals[0]:
+        warnings.append({'SourcePersonID':pid,'Field':'Примечание','Reason':'Не удалось выделить дату рождения; исходный текст сохранён для сверки'})
+    try:date=normalize_expiry(vals[0])
+    except ValueError:date=''
+    extra={k:v for k,v in zip(('Дата рождения','Паспорт РФ','Прописка'),(date,vals[1],vals[2])) if v}
+    fallback='\n'.join(k+': '+v for k,v in zip(('Дата рождения','Паспорт РФ','Прописка'),vals))
+    for i,label in enumerate(('Дата рождения','Паспорт РФ','Прописка')):
+        if i in conflicts:extra.pop(label,None)
+    for label in duplicates:
+        extra.pop({'дата рождения':'Дата рождения','паспорт рф':'Паспорт РФ','прописка':'Прописка'}[label],None)
+    if 'Дата рождения' in extra:
+        dt=datetime.datetime.strptime(extra['Дата рождения'],'%d.%m.%Y').date()
+        if dt>datetime.date.today():
+            extra.pop('Дата рождения')
+            warnings.append({'SourcePersonID':pid,'Field':'Дата рождения','Reason':'Будущая дата: оставлена только в примечании для сверки'})
+    if note:
+        warnings.append({'SourcePersonID':pid,'Field':'Примечание','Reason':'Проверьте извлечение кадровых данных из примечания по исходному тексту'})
+    if note:fallback+='\nИсходное примечание Болид: '+note
+    return extra,fallback
 
 def expiry_candidate(row):
     # Exact field-name suggestions only, never arbitrary date-content matching.
@@ -52,8 +105,6 @@ def photo_bytes(raw, folder):
 def enrich(folder):
     from safe_w34 import read_csv, value, write_csv
     folder=Path(folder); source=read_csv(folder/'pList.csv')
-    meta=json.loads((folder/'schema.json').read_text(encoding='utf-8'))
-    types={k.casefold():v for k,v in meta.get('tables',{}).get('pList',{}).get('columns',{}).items()}
     references={}; warnings=[]
     for name in ('PCompany','PDivision','PPost','Company','Firm','Section','pSection','Department','Post','Posts','Position'):
         if (folder/(name+'.csv')).exists():
@@ -72,41 +123,16 @@ def enrich(folder):
         warnings.append({'SourcePersonID':pid,'Field':fields[0],'Reason':f'Не найдено название для ID={v}; исходный ID сохранён'})
         return ''
     details={}; photo_dir=folder/'Фотографии'; photo_dir.mkdir(exist_ok=True)
-    mapped={'id','name','surname','family','firstname','midname','middlename',
-            'tabnumber','tab','tabel','post','position','company','firm','section','department',
-            'phone','telephone','tel','mobile','picture','photo','foto','image'}
-    technical={'uid','rowid','guid','guid_1c','status','shedule','schedule','spack','grstatus',
-               'changetime','statuslist','gtype','config','operatorid','timeofcreation','fingerprint'}
     for p in source:
         pid=value(p,'ID')
         if not pid or pid in details: raise ValueError('pList.ID отсутствует или не уникален')
         comp=resolve(p,pid,('Company','Firm'),('PCompany','Company','Firm'))
         sect=resolve(p,pid,('Section','Department'),('PDivision','Section','pSection','Department'))
         post=resolve(p,pid,('Post','Position'),('PPost','Post','Posts','Position'))
-        extra={}; birth=''
-        for k,v in p.items():
-            low=k.casefold()
-            if low in mapped or low in technical or types.get(low) in ('image','binary','varbinary','timestamp','rowversion'):continue
-            if not v:continue
-            label=FIELD_RU.get(low,k)
-            if label in extra: label=f'{label} ({k})'
-            if low in ('birthdate','datebirth'):
-                try:v=normalize_expiry(v)
-                except ValueError:pass
-                birth='Дата рождения: '+v
-            extra[label]=v
-        for field in ('Status','Schedule','Shedule','GrStatus'):
-            v=value(p,field)
-            if v:extra['Орион '+field+' (исходное значение)']=v
-        if comp:extra['Компания']=comp
-        if sect:extra['Подразделение']=sect
-        for field in ('Company','Firm','Section','Department','Post','Position'):
-            v=value(p,field)
-            if v:extra['Орион '+field]=v
         d={'id':pid,'fio':' '.join(filter(None,[value(p,'Name','Surname','Family'),value(p,'FirstName'),value(p,'MidName','MiddleName')])),
            'tab':value(p,'TabNumber','Tab','Tabel'),'dept':', '.join(filter(None,[comp,sect])),
-           'post':post,'phone':value(p,'Phone','Telephone','Tel','Mobile'),
-           'note':birth,'extra':extra,'photo':''}
+           'post':post,'note':'','extra':{},'photo':''}
+        d['extra'], d['note'] = agreed_personal(p,warnings,pid)
         picture=value(p,'Picture','Photo','Foto','Image')
         if picture:
             try:
@@ -125,7 +151,8 @@ def enrich(folder):
     return details
 
 
-def export_xls(path, details, source, cards=None):
+def export_xls(path, details, source, cards=None, personal_mode='fields', experimental=False):
+    if personal_mode not in ('fields','notes'):raise ValueError('Неизвестный режим кадровых полей')
     """cards=None exports people only; all exact duplicates/homonyms quarantined."""
     from safe_w34 import write_csv
     import xlwt
@@ -151,11 +178,11 @@ def export_xls(path, details, source, cards=None):
         else:selected[pid]=rows
     rows_count=sum(len(r) for r in selected.values())
     if rows_count>65535:raise ValueError('Превышен лимит строк XLS; нужна разбивка')
-    extra_cols=sorted({k for pid in selected for k in details[pid]['extra']})
-    cols=['ФИО','Отдел','Должность','Номер пропуска','Срок действия','Табельный номер','Тип пропуска',
-          'Номер телефона','Тип записи','Имя файла фотографии','Примечание','Орион ID']
+    extra_cols=['Дата рождения','Паспорт РФ','Прописка'] if personal_mode=='fields' else []
+    cols=['ФИО','Отдел','Должность','Номер пропуска','Окончание действия пропуска','Табельный номер','Тип пропуска',
+          'Тип записи','Имя файла фотографии','Примечание','Орион ID','Начало действия пропуска']
     if len(cols)+len(extra_cols)>256:raise ValueError('Превышен лимит колонок XLS, требуется явный выбор полей')
-    wb=xlwt.Workbook();ws=wb.add_sheet('Импорт');style=xlwt.easyxf('align: wrap on, vert top',num_format_str='@')
+    wb=xlwt.Workbook();ws=wb.add_sheet('ДИАГНОСТИКА' if experimental else 'Импорт');style=xlwt.easyxf('align: wrap on, vert top',num_format_str='@')
     hdr=xlwt.easyxf('font: bold on',num_format_str='@')
     for i,h in enumerate(cols+extra_cols):ws.write(0,i,h,hdr);ws.col(i).width=6500
     idx=1;photos=0
@@ -167,8 +194,10 @@ def export_xls(path, details, source, cards=None):
             (path.parent/'Фотографии').mkdir(exist_ok=True)
             shutil.copy2(source/Path(photo.replace('\\','/')),path.parent/Path(photo.replace('\\','/')));photos+=1
         for j,r in enumerate(rows):
-            vals=[r['ФИО'],r['Отдел'],r['Должность'],r['FinalW34'],r.get('Срок действия',''),r['Табельный номер'],'Карта' if r['FinalW34'] else '',person['phone'],'Сотрудник',photo,person['note'],pid]+[person['extra'].get(k,'') for k in extra_cols]
-            if j:vals=['','','',r['FinalW34'],r.get('Срок действия',''),'','Карта']+['']*(len(cols)+len(extra_cols)-7)
+            vals=[r['ФИО'],r['Отдел'],r['Должность'],r['FinalW34'],r.get('Срок действия',''),r['Табельный номер'],'Карта' if r['FinalW34'] else '','Сотрудник',photo,person['note'] if personal_mode=='notes' else '',pid,r.get('Начало действия пропуска','')]+[person['extra'].get(k,'') for k in extra_cols]
+            if j:
+                vals=['']*(len(cols)+len(extra_cols))
+                for field,val in [('Номер пропуска',r['FinalW34']),('Тип пропуска','Карта'),('Окончание действия пропуска',r.get('Срок действия','')),('Начало действия пропуска',r.get('Начало действия пропуска',''))]:vals[cols.index(field)]=val
             for i,v in enumerate(vals):
                 if len(str(v))>32767:raise ValueError(f'Слишком длинное поле: {pid}, {cols[i] if i<len(cols) else extra_cols[i-len(cols)]}')
                 ws.write(idx,i,str(v),style)

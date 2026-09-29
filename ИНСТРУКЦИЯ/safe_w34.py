@@ -143,7 +143,7 @@ def value(row, *names):
     low = {k.lower():v for k,v in row.items()}
     return next((low[n.lower()] for n in names if n.lower() in low), '')
 
-REVIEW = ['SourceKeyID','SourcePersonID','ФИО','Табельный номер','Отдел','Должность','RawCodeP','Format','ABD','CandidateW34','DecodeError','Profile','ObservedW34','Approve','Срок действия','SourceMetadata','Исходный срок','Поле срока']
+REVIEW = ['SourceKeyID','SourcePersonID','ФИО','Табельный номер','Отдел','Должность','RawCodeP','Format','ABD','CandidateW34','DecodeError','Profile','ObservedW34','Approve','Срок действия','SourceMetadata','Исходный срок','Поле срока','Начало действия пропуска']
 
 def prepare(folder):
     folder = Path(folder)
@@ -176,15 +176,16 @@ def prepare(folder):
         result[-1]['Должность'] = person.get('post','')
         end_field, end_value = expiry_candidate(m)
         result[-1]['Исходный срок'] = end_value
-        result[-1]['Поле срока'] = end_field
+        result[-1]['Поле срока','Начало действия пропуска'] = end_field
         # Preserved as metadata; user chooses whether this is really the expiry.
     target = folder/'Проверка.csv'
     if target.exists(): raise ValueError('Проверка.csv уже существует: не перезаписываю вашу проверку')
     write_csv(target,result,REVIEW)
     return target
 
-def build(review_path, expiry_column=''):
+def build(review_path, expiry_column='', start_column='', personal_mode='fields', allow_multicard_dates=False):
     """Explicit approval required; no source status is interpreted as permission."""
+    if expiry_column and start_column and expiry_column.casefold()==start_column.casefold():raise ValueError('Начало и окончание не могут быть одним полем')
     review_path = Path(review_path); rows = read_csv(review_path)
     profiles = {}; prepared = []; ids = set()
     for r in rows:
@@ -234,12 +235,18 @@ def build(review_path, expiry_column=''):
         mark = source_marks[kid]
         reason = ''
         if expiry_column and not r.get('Срок действия','').strip():
-            from migration_data import normalize_expiry
+            from migration_data import normalize_access
             if not any(k.casefold()==expiry_column.casefold() for k in mark):
                 reason = 'Выбранное поле срока отсутствует в исходных ключах'
             else:
-                try: r['Срок действия'] = normalize_expiry(value(mark, expiry_column))
+                try: r['Срок действия'] = normalize_access(value(mark, expiry_column))
                 except ValueError as ex: reason = 'Срок: '+str(ex)
+        if start_column and not r.get('Начало действия пропуска','').strip():
+            from migration_data import normalize_access
+            if not any(k.casefold()==start_column.casefold() for k in mark):reason = 'Поле начала отсутствует'
+            else:
+                try:r['Начало действия пропуска']=normalize_access(value(mark,start_column))
+                except ValueError as ex:reason='Начало: '+str(ex)
         if pid != value(mark,'Owner','OwnerID','Person') or r.get('RawCodeP','') != value(mark,'CodeP'):
             reason = 'Изменены исходные код или владелец'
         elif pid not in source_people: reason = 'Нет владельца в исходном pList'
@@ -284,30 +291,55 @@ def build(review_path, expiry_column=''):
         if counts[(r['SourcePersonID'],r['FinalW34'])]>1: rejected.append({**r,'Reason':'Повтор номера у одного человека'})
         else: unique.append(r)
     final = unique
-    from migration_data import enrich, export_xls, normalize_expiry
+    from migration_data import enrich, export_xls, normalize_access
     details = enrich(source)
     # Reject invalid deadlines before accounting; preserve full time in raw CSV.
     valid = []
     for r in final:
         try:
-            r['Срок действия'] = normalize_expiry(r.get('Срок действия',''))
+            r['Срок действия'] = normalize_access(r.get('Срок действия',''))
+            r['Начало действия пропуска'] = normalize_access(r.get('Начало действия пропуска',''))
+            if r['Срок действия'] and r['Начало действия пропуска'] and datetime.datetime.strptime(r['Начало действия пропуска'],'%d.%m.%Y %H:%M:%S') >= datetime.datetime.strptime(r['Срок действия'],'%d.%m.%Y %H:%M:%S'):raise ValueError('Начало должно быть раньше окончания')
             valid.append(r)
         except ValueError as ex: rejected.append({**r,'Reason':'Срок: '+str(ex)})
     final = valid
+    # Official manual is ambiguous about dates on continuation rows. Fail closed by default.
+    if not allow_multicard_dates:
+        dated_people={r['SourcePersonID'] for r in final if r.get('Срок действия') or r.get('Начало действия пропуска')}
+        totals={}
+        for r in final:totals[r['SourcePersonID']]=totals.get(r['SourcePersonID'],0)+1
+        allowed=[]
+        for r in final:
+            if r['SourcePersonID'] in dated_people and totals[r['SourcePersonID']]>1:
+                rejected.append({**r,'Reason':'Несколько карт со сроками: сначала требуется отдельный тест строк продолжения в установленной версии Sigur'})
+            else:allowed.append(r)
+        final=allowed
     out = source / ('result_'+datetime.datetime.now().strftime('%Y%m%d_%H%M%S_%f')); out.mkdir()
     write_csv(out/'Исключения.csv', rejected, REVIEW+['Reason'])
     write_csv(out/'Принятые.csv', final, REVIEW+['FinalW34'])
-    report = {'complete':False, 'input_keys':len(rows),'accepted':len(final),'excluded':len(rejected),'calibrated_profiles':sorted(calibrated),'calibrated_upper_bytes':{k:sorted(v) for k,v in calibrated_upper.items()},'profile_errors':profile_errors,'note':'Фото и кадровые поля перенесены в файлы; исходные статусы/права не назначаются автоматически. Срок окончания только из явного поля/таблицы проверки. Начало действия и точное время требуют ручной настройки.'}
+    report = {'complete':False, 'input_keys':len(rows),'accepted':len(final),'excluded':len(rejected),'calibrated_profiles':sorted(calibrated),'calibrated_upper_bytes':{k:sorted(v) for k,v in calibrated_upper.items()},'profile_errors':profile_errors,'note':'Фото и кадровые поля перенесены в файлы; исходные статусы/права не назначаются автоматически. Срок окончания только из явного поля/таблицы проверки. Начало и окончание с точным временем берутся только из явно выбранных полей. Режим Турникет — 24/7 назначается в Sigur отдельно.'}
     (out/'Отчёт.json').write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8')
     assert len(final)+len(rejected)==len(rows)
     # All source people are also available without keys; no rights are assigned.
-    staff_stats = export_xls(out/'Сотрудники_без_ключей.xls', details, source)
-    card_stats = export_xls(out/'ТЕСТ_Импорт_Sigur.xls', details, source, final) if final else {}
+    staff_stats = export_xls(out/'Сотрудники_без_ключей.xls', details, source, personal_mode=personal_mode)
+    card_name='ДИАГНОСТИКА_НЕ_ДЛЯ_РАБОТЫ.xls' if allow_multicard_dates else 'ТЕСТ_Импорт_Sigur.xls'
+    card_stats = export_xls(out/card_name, details, source, final, personal_mode=personal_mode, experimental=allow_multicard_dates) if final else {}
+    checklist=[]
+    for r in final+rejected:
+        checklist.append({'ID ключа':r['SourceKeyID'],'ID сотрудника':r['SourcePersonID'],'ФИО':r.get('ФИО',''),'Номер W34':r.get('FinalW34') or r.get('_observed') or r.get('_candidate',''),'Статус номера':'Принят' if not r.get('Reason') else 'НЕ ПЕРЕНОСИТЬ БЕЗ ПРОВЕРКИ','Начало':r.get('Начало действия пропуска',''),'Окончание':r.get('Срок действия',''),'Причина':r.get('Reason',''),'Имя и номер проверены в Sigur':'','Обе даты проверены в Sigur':'','Права проверены на турникете':''})
+    if checklist:write_csv(out/'Сверка_каждой_карты.csv',checklist,list(checklist[0]))
     import shutil
     shutil.copy2(source/'Предупреждения_данных.csv',out/'Предупреждения_данных.csv')
     write_csv(out/'Данные_всех_ключей.csv', list(source_marks.values()), list(next(iter(source_marks.values()),{})))
+    report['source_start_column']=start_column
+    report['source_end_column']=expiry_column
+    report['test_only']=True
+    report['personal_mode']=personal_mode
+    report['experimental_multicard_dates']=allow_multicard_dates
+    report['warnings']=['До выдачи доступа проверьте оба срока каждой карты, особенно второй и последующих: руководство неоднозначно описывает даты в строках продолжения.', 'Режим Турникет — 24/7 назначить отдельно; комнату охраны не включать.', 'Пустое окончание может означать бессрочность; пустое начало Sigur может заменить временем импорта.']
     report['staff_file'] = staff_stats
     report['cards_file'] = card_stats
+    report['cards_filename']=card_name
     report['complete'] = True
     (out/'Отчёт.json').write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8')
     return out

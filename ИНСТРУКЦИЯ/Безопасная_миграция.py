@@ -7,7 +7,7 @@ from safe_w34 import discover, snapshot, prepare, build, read_csv, write_csv, RE
 
 
 def main():
-    root=tk.Tk();root.title('Болид → Sigur · сотрудники, фото и W34 · v3');root.geometry('1150x830')
+    root=tk.Tk();root.title('Болид → Sigur · сотрудники, фото и W34 · v3.1');root.geometry('1150x830')
     q=queue.Queue(); fields={}; buttons=[]
     state={'found':[],'auth':None,'path':None,'rows':[],'busy':False}
     top=ttk.LabelFrame(root,text='1. Найти базу — как раньше',padding=8);top.pack(fill='x',padx=10,pady=8)
@@ -78,6 +78,8 @@ def main():
         render()
         available=sorted({k for r in state['rows'] for k in __import__('json').loads(r.get('SourceMetadata') or '{}')})
         expiry_box['values']=['Не переносить автоматически']+available
+        start_box['values']=['Не переносить автоматически']+available
+        expiry_box.set('Не переносить автоматически');start_box.set('Не переносить автоматически')
     def render():
         selected=tree.selection();tree.delete(*tree.get_children())
         for i,r in enumerate(state['rows']):
@@ -122,15 +124,29 @@ def main():
     bottom=ttk.LabelFrame(root,text='3. Сформировать файлы для проверки и импорта',padding=6);bottom.pack(fill='x',padx=10,pady=6)
     ttk.Label(bottom,text='Поле окончания срока ключа (только если смысл подтверждён):').pack(side='left')
     expiry_box=ttk.Combobox(bottom,state='readonly',width=27,values=['Не переносить автоматически']);expiry_box.set('Не переносить автоматически');expiry_box.pack(side='left')
+    start_line=ttk.Frame(root);start_line.pack(fill='x',padx=10)
+    ttk.Label(start_line,text='Поле начала действия карты:').pack(side='left')
+    start_box=ttk.Combobox(start_line,state='readonly',width=27,values=['Не переносить автоматически']);start_box.set('Не переносить автоматически');start_box.pack(side='left')
+    options=ttk.Frame(root);options.pack(fill='x',padx=10)
+    notes_only=tk.BooleanVar(value=False)
+    ttk.Checkbutton(options,text='Дата рождения / паспорт / прописка — в Примечание вместо отдельных полей',variable=notes_only).pack(anchor='w')
+    experimental=tk.BooleanVar(value=False)
+    ttk.Checkbutton(options,text='ДИАГНОСТИКА: разрешить несколько карт со сроками (только пустая тестовая база)',variable=experimental).pack(anchor='w')
     def make():
         if not state['path']:messagebox.showwarning('Нет выгрузки','Сначала выгрузите базу или откройте Проверка.csv.');return
         save();path=state['path'];expiry=expiry_box.get();expiry='' if expiry=='Не переносить автоматически' else expiry
         if not messagebox.askyesno('Только пустая тестовая база', 'Этот пакет не проверяет уже выданные карты в Sigur.\nФайлы предназначены для пустой тестовой базы, не для обновления существующей рабочей базы.\nПодтверждаете тест на пустой базе?'):return
-        if not messagebox.askyesno('Тестовый импорт','Сформировать файлы?\nБез выбранного поля срока конечные сроки не подставляются автоматически.\nНачало действия, расписания и исходные блокировки нужно настроить отдельно.\nНе выдавайте рабочие права до проверки ограничений.'):return
+        if not messagebox.askyesno('Тестовый импорт','Сформировать файлы?\nБез выбранного поля срока конечные сроки не подставляются автоматически.\nВыберите оба исходных поля дат. Без них ограничения не сохраняются. Режим Турникет — 24/7 назначается отдельно; блокировки нужно проверить.\nНе выдавайте рабочие права до проверки ограничений.'):return
         def done(out):
             log('РЕЗУЛЬТАТ: '+str(out))
             messagebox.showinfo('Файлы подготовлены','Папка:\n'+str(out)+'\n\nОткройте Отчёт.json, Исключения.csv и Предупреждения_данных.csv. Сначала импортируйте 3–10 сотрудников в тестовую базу.')
-        task(lambda:build(path,expiry),done)
+        start=start_box.get();start='' if start=='Не переносить автоматически' else start
+        if not start or not expiry:
+            if not messagebox.askyesno('Не выбраны обе границы срока','Одна или обе границы НЕ будут взяты из исходных полей. Sigur может заменить начало временем импорта, а окончание считать бессрочным. Продолжить только для диагностики, без выдачи рабочих прав?'):return
+        mode='notes' if notes_only.get() else 'fields'
+        multi=experimental.get()
+        if multi and not messagebox.askyesno('Экспериментальные строки продолжения','Руководство неоднозначно описывает сроки второй и следующих карт. Этот файл только для диагностики: после импорта сверьте владельца и обе даты КАЖДОЙ карты. Не назначайте рабочий доступ до проверки. Продолжить?'):return
+        task(lambda:build(path,expiry,start,mode,multi),done)
     button(bottom,'СОЗДАТЬ ФАЙЛЫ',make)
     text=tk.Text(root,height=7,wrap='word');text.pack(fill='x',padx=10,pady=(0,8))
     def unlock():

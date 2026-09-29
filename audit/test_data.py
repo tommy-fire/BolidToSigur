@@ -26,7 +26,7 @@ class DataTests(unittest.TestCase):
             self.assertEqual(report['staff_file']['people'],2);self.assertEqual(report['cards_file']['people'],1)
             self.assertEqual(len(list((out/'Фотографии').glob('*.jpg'))),2)
             sh=xlrd.open_workbook(out/'ТЕСТ_Импорт_Sigur.xls').sheet_by_index(0);headers=sh.row_values(0);vals=dict(zip(headers,sh.row_values(1)))
-            self.assertEqual(vals['Номер телефона'],'000123');self.assertEqual(vals['Паспорт РФ'],'00000123');self.assertIn('02.01.1980',vals['Примечание']);self.assertEqual(vals['Прописка'],'Тестовый адрес')
+            self.assertNotIn('Номер телефона',vals);self.assertEqual(vals['Паспорт РФ'],'00000123');self.assertEqual(vals['Дата рождения'],'02.01.1980');self.assertEqual(vals['Примечание'],'');self.assertEqual(vals['Прописка'],'Тестовый адрес')
     def test_large_csv_field(self):
         with tempfile.TemporaryDirectory() as td:
             path=Path(td)/'big.csv';s.write_csv(path,[{'x':'F'*500000}],['x']);self.assertEqual(len(s.read_csv(path)[0]['x']),500000)
@@ -39,9 +39,9 @@ class DataTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             root=Path(td);path=test_safe.Tests().fixture(root,1);marks=s.read_csv(root/'pMark.csv');marks[0]['Finish']='2030-01-02T00:00:00'
             s.write_csv(root/'pMark.csv',marks,list(marks[0]));rows=s.read_csv(path);rows[0]['Approve']='ДА';rows[0]['ObservedW34']=rows[0]['CandidateW34'];s.write_csv(path,rows,s.REVIEW)
-            out=s.build(path,'Finish');self.assertEqual(s.read_csv(out/'Принятые.csv')[0]['Срок действия'],'02.01.2030')
+            out=s.build(path,'Finish');self.assertEqual(s.read_csv(out/'Принятые.csv')[0]['Срок действия'],'02.01.2030 00:00:00')
             marks[0]['Finish']='2030-01-02T12:30:00';s.write_csv(root/'pMark.csv',marks,list(marks[0]));out=s.build(path,'Finish')
-            self.assertFalse((out/'ТЕСТ_Импорт_Sigur.xls').exists())
+            self.assertEqual(s.read_csv(out/'Принятые.csv')[0]['Срок действия'],'02.01.2030 12:30:00')
     def test_photo_error_does_not_abort(self):
         with tempfile.TemporaryDirectory() as td:
             root=Path(td);test_safe.Tests().fixture(root,1);people=s.read_csv(root/'pList.csv');people[0]['Picture']='BADPHOTO';s.write_csv(root/'pList.csv',people,list(people[0]))
