@@ -85,3 +85,14 @@ class SnapshotTest(unittest.TestCase):
             self.assertEqual(m['Owner'],'999');self.assertEqual(len(m['CodeP']),600)
             self.assertTrue(all(sql.startswith('SELECT') for sql in statements));self.assertTrue(any('varbinary(max)' in sql for sql in statements))
             conn.close.assert_called_once()
+
+class CalibrationTest(unittest.TestCase):
+    def test_symmetric_samples_not_discriminating(self):
+        with tempfile.TemporaryDirectory() as td:
+            root=Path(td);path=test_safe.Tests().fixture(root,3);marks=s.read_csv(root/'pMark.csv')
+            for m,n in zip(marks,[0x12212112,0x23323223,0x34434334]):m['CodeP']=test_safe.raw(n)
+            s.write_csv(root/'pMark.csv',marks,list(marks[0]));path.unlink();s.prepare(root);rows=s.read_csv(path)
+            for r in rows:r.update(Approve='ДА',Profile='symmetric',ObservedW34=r['CandidateW34'])
+            s.write_csv(path,rows,s.REVIEW);out=s.build(path);report=json.loads((out/'Отчёт.json').read_text())
+            # Individual readings can still be used; no automatic profile was validated.
+            self.assertEqual(report['calibrated_profiles'],[]);self.assertIn('симметричны',report['profile_errors']['symmetric'])

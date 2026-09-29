@@ -208,6 +208,8 @@ def build(review_path, expiry_column=''):
     for profile, sample in profiles.items():
         if any(not r['_candidate'] or r['_candidate'] != r['_observed'] for r in sample):
             profile_errors[profile] = 'Есть несовпадение эталона; автоперенос профиля запрещён'
+        elif all(bytes.fromhex(r['_observed'])[::-1].hex().upper() == r['_observed'] for r in sample):
+            profile_errors[profile] = 'Контрольные номера симметричны по байтам: добавьте номер, отличающий порядок байтов'
         elif len({r['_observed'] for r in sample}) >= 3:
             calibrated.add(profile)
             calibrated_upper[profile] = {r['_upper'] for r in sample}
