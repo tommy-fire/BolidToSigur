@@ -6,6 +6,11 @@ test_expiry_requires_explicit_field (test_data.DataTests.test_expiry_requires_ex
 test_large_csv_field (test_data.DataTests.test_large_csv_field) ... ok
 test_photo_error_does_not_abort (test_data.DataTests.test_photo_error_does_not_abort) ... ok
 test_readonly_snapshot_keeps_orphans_and_long_codes (test_data.SnapshotTest.test_readonly_snapshot_keeps_orphans_and_long_codes) ... ok
+test_crc_standard_check_vector (test_key_review.KeyReview.test_crc_standard_check_vector) ... ok
+test_distinct_48bit_keys_collide_after_truncation (test_key_review.KeyReview.test_distinct_48bit_keys_collide_after_truncation) ... ok
+test_duplicate_same_owner_rejects_both_deadlines (test_key_review.KeyReview.test_duplicate_same_owner_rejects_both_deadlines) ... ok
+test_every_single_bit_corruption_rejected (test_key_review.KeyReview.test_every_single_bit_corruption_rejected) ... ok
+test_full_serial_random_roundtrip (test_key_review.KeyReview.test_full_serial_random_roundtrip) ... ok
 test_unapproved_other_owner_collision (test_safe.CollisionTest.test_unapproved_other_owner_collision) ... ok
 test_decode (test_safe.Tests.test_decode) ... ok
 test_gates_and_xls (test_safe.Tests.test_gates_and_xls) ... ok
@@ -16,6 +21,6 @@ test_reject (test_safe.Tests.test_reject) ... ok
 test_unknown_per_key (test_safe.Tests.test_unknown_per_key) ... ok
 
 ----------------------------------------------------------------------
-Ran 16 tests in 0.111s
+Ran 21 tests in 0.201s
 
 OK
