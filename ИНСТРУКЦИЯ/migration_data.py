@@ -96,7 +96,7 @@ def photo_bytes(raw, folder):
     if len(raw)>40 and (raw.startswith('data:image/') or re.fullmatch(r'[A-Za-z0-9+/=\s]+',raw)):
         try: return base64.b64decode(raw.split(',',1)[-1],validate=True)
         except Exception: pass
-    if len(raw)<1000 and not raw.startswith(('\\\\','//')):
+    if not (folder/'PORTABLE.txt').exists() and len(raw)<1000 and not raw.startswith(('\\\\','//')):
         candidate=Path(raw)
         if not candidate.is_absolute(): candidate=folder/candidate
         if candidate.is_file(): return candidate.read_bytes()
@@ -123,6 +123,11 @@ def enrich(folder):
         warnings.append({'SourcePersonID':pid,'Field':fields[0],'Reason':f'Не найдено название для ID={v}; исходный ID сохранён'})
         return ''
     details={}; photo_dir=folder/'Фотографии'; photo_dir.mkdir(exist_ok=True)
+    cache_path=folder/'photo_cache.json'
+    try:old_cache=json.loads(cache_path.read_text(encoding='utf-8'))
+    except (OSError,ValueError):old_cache={}
+    if not isinstance(old_cache,dict):old_cache={}
+    new_cache={}
     for p in source:
         pid=value(p,'ID')
         if not pid or pid in details: raise ValueError('pList.ID отсутствует или не уникален')
@@ -137,15 +142,27 @@ def enrich(folder):
         if picture:
             try:
                 from PIL import Image,ImageOps
-                data=photo_bytes(picture,folder)
-                with Image.open(io.BytesIO(data)) as image:
-                    image=ImageOps.exif_transpose(image).convert('RGB')
-                    fn='person_'+hashlib.sha256(pid.encode()).hexdigest()+'.jpg'
-                    image.save(photo_dir/fn,'JPEG',quality=92)
-                    d['photo']='Фотографии\\'+fn
+                fn='person_'+hashlib.sha256(pid.encode()).hexdigest()+'.jpg'
+                src_hash=hashlib.sha256(picture.encode('utf-8')).hexdigest()
+                cached=old_cache.get(pid,{})
+                photo=photo_dir/fn
+                reused=False
+                if isinstance(cached,dict) and cached.get('source_sha256')==src_hash and photo.is_file() and not photo.is_symlink():
+                    data=photo.read_bytes()
+                    if hashlib.sha256(data).hexdigest()==cached.get('photo_sha256'):
+                        with Image.open(io.BytesIO(data)) as image:image.verify()
+                        reused=True
+                if not reused:
+                    data=photo_bytes(picture,folder)
+                    with Image.open(io.BytesIO(data)) as image:
+                        image=ImageOps.exif_transpose(image).convert('RGB')
+                        image.save(photo,'JPEG',quality=92)
+                d['photo']='Фотографии\\'+fn
+                new_cache[pid]={'source_sha256':src_hash,'photo_sha256':hashlib.sha256(photo.read_bytes()).hexdigest()}
             except Exception as ex:
                 warnings.append({'SourcePersonID':pid,'Field':'Фото','Reason':type(ex).__name__+': '+str(ex)[:200]})
         details[pid]=d
+    cache_path.write_text(json.dumps(new_cache,ensure_ascii=False),encoding='utf-8')
     (folder/'Персонал.json').write_text(json.dumps(details,ensure_ascii=False,indent=2),encoding='utf-8')
     write_csv(folder/'Предупреждения_данных.csv',warnings,['SourcePersonID','Field','Reason'])
     return details

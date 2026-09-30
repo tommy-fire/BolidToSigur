@@ -1,18 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-r"""
-ПОЛНАЯ ВЫГРУЗКА ИЗ БАЗЫ «ОРИОН ПРО» (БОЛИД): ЛЮДИ + КЛЮЧИ/КАРТЫ + ФОТОГРАФИИ
-
-Запускается на компьютере, где стоит «Орион Про» с базой MS SQL.
-Читает данные прямо из базы и складывает их в файлы, которые понимает
-программа «Миграция Болид → Sigur»:
-
-    Болид_выгрузка.csv   — люди, все их данные и ВСЕ коды карт
-    Фотографии\          — фотографии сотрудников (файлы)
-    Отчёт_выгрузки.txt   — что и сколько выгрузилось
-
-ВАЖНО: база только ЧИТАЕТСЯ (SELECT). Программа ничего в ней не меняет
-и не пишет. Работающая «Орион Про» этому не мешает.
+r"""Established SQL discovery/connection helpers, used only on the first tab.
+The GUI calls safe_w34.snapshot and transfer_bundle.pack to save a .bolid file.
+No writes to the Bolid database. ODBC is not needed to open a saved .bolid file.
 """
 import os, re, sys, csv, traceback
 

@@ -16,3 +16,9 @@ BolidExport/
 Проверка.csv
 pList.csv
 pMark.csv
+
+# Portable personnel/card archives and working copies
+*.bolid
+project_*/
+.opening_*/
+*.bolid.*.tmp

@@ -1,0 +1,2 @@
+# Windows launchers must retain CRLF on checkout.
+*.bat text eol=crlf whitespace=cr-at-eol
