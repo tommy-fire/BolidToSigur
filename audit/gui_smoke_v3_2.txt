@@ -1,2 +1,0 @@
-OFFLINE: PASS: real Tk GUI open .bolid -> edit observed number -> approve -> select both dates -> save .bolid -> create XLS; no SQL; 1180x820 and 880x680 controls visible.
-SOURCE SQL MOCKS: PASS: real Tk GUI open .bolid -> edit observed number -> approve -> select both dates -> save .bolid -> create XLS; no SQL; 1180x820 and 880x680 controls visible.
