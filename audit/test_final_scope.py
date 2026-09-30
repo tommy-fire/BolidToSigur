@@ -41,7 +41,7 @@ class FinalScope(unittest.TestCase):
             out=s.build(path,'Finish','Start',personal_mode='notes',allow_multicard_dates=True)
             sh=xlrd.open_workbook(out/'ДИАГНОСТИКА_НЕ_ДЛЯ_РАБОТЫ.xls').sheet_by_index(0);headers=sh.row_values(0)
             self.assertNotIn('Дата рождения',headers)
-            self.assertTrue(sh.cell_value(1,headers.index('Примечание')).startswith('Дата рождения:'))
+            self.assertEqual(sh.cell_value(1,headers.index('Примечание')),'')
             marks[0]['Start']='2031-01-01';s.write_csv(root/'pMark.csv',marks,list(marks[0]))
             out=s.build(path,'Finish','Start');self.assertEqual(json.loads((out/'Отчёт.json').read_text())['excluded'],1)
             with self.assertRaises(ValueError):s.build(path,'Finish','Finish')

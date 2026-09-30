@@ -26,7 +26,7 @@ class DataTests(unittest.TestCase):
             self.assertEqual(report['staff_file']['people'],2);self.assertEqual(report['cards_file']['people'],1)
             self.assertEqual(len(list((out/'Фотографии').glob('*.jpg'))),2)
             sh=xlrd.open_workbook(out/'ТЕСТ_Импорт_Sigur.xls').sheet_by_index(0);headers=sh.row_values(0);vals=dict(zip(headers,sh.row_values(1)))
-            self.assertNotIn('Номер телефона',vals);self.assertEqual(vals['Паспорт РФ'],'00000123');self.assertEqual(vals['Дата рождения'],'02.01.1980');self.assertEqual(vals['Примечание'],'');self.assertEqual(vals['Прописка'],'Тестовый адрес')
+            self.assertNotIn('Номер телефона',vals);self.assertEqual(vals['Паспорт РФ'],'00000123');self.assertEqual(vals['Дата рождения'],'02.01.1980');self.assertEqual(vals['Примечание'],'Дата рождения: 02.01.1980');self.assertEqual(vals['Прописка'],'Тестовый адрес')
     def test_large_csv_field(self):
         with tempfile.TemporaryDirectory() as td:
             path=Path(td)/'big.csv';s.write_csv(path,[{'x':'F'*500000}],['x']);self.assertEqual(len(s.read_csv(path)[0]['x']),500000)

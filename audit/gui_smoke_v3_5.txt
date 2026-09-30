@@ -1,0 +1,1 @@
+PASS: simple Tk, exactly 2 buttons, no tabs/checkboxes; mocked discovery/export -> .bolid beside app -> select file -> full trial XLS with a candidate card, no pass-type column, and diagnostic reports. Linux/Xvfb only; no live SQL/Sigur.

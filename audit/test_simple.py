@@ -26,7 +26,7 @@ class SimpleTests(unittest.TestCase):
         for i in range(1,sh.nrows):
             r=dict(zip(headers,sh.row_values(i)))
             for field in ['Номер пропуска','Начало действия пропуска','Окончание действия пропуска']:self.assertEqual(r[field],'')
-            self.assertIn('НЕ НАЗНАЧАТЬ ДОСТУП',r['Отдел']);self.assertIn('НЕ ПРОВЕРЕНЫ',r['Примечание'])
+            self.assertIn('НЕ НАЗНАЧАТЬ ДОСТУП',r['Отдел']);self.assertEqual(r['Примечание'],'')
         self.assertNotIn('accepted',report);self.assertFalse(report['hardware_verified']);self.assertFalse(report['access_rights_assigned'])
         self.assertFalse((out/'Принятые.csv').exists())
         return sh
