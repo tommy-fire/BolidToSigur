@@ -13,7 +13,7 @@ from simple_flow import export_database, convert_file
 
 
 def main():
-    root=tk.Tk();root.title('Болид → Sigur · v3.5');root.geometry('720x520');root.minsize(680,500)
+    root=tk.Tk();root.title('Болид → Sigur · v1.0.0');root.geometry('720x520');root.minsize(680,500)
     root.configure(padx=18,pady=15)
     home=Path(__file__).resolve().parent
     user=tk.StringVar();password=tk.StringVar();status=tk.StringVar(value='Введите логин и пароль либо сразу выберите ранее сохранённую выгрузку.')

@@ -37,13 +37,13 @@ def convert_file(bundle, folder, staff_only=False):
     start=unique_field(cols,START_NAMES);end=unique_field(cols,END_NAMES)
     result=build(review,end,start,'fields',candidate_draft=staff_only,trial_import=not staff_only)
     report=json.loads((result/'Отчёт.json').read_text(encoding='utf-8'))
-    report['app_version']='3.5'
+    report['app_version']='1.0.0'
     report['automatic_date_suggestions']={'start':start,'end':end,'semantics_verified':False}
     report['note']+=' Имена полей дат выбраны автоматически, их смысл нужно сверить по карточке Болид.'
     marks=read_csv(review.parent/'pMark.csv')
     raw_by_id={value(m,'ID'):m for m in marks}
     structural={
-        'app_version':'3.5',
+        'app_version':'1.0.0',
         'tables':{name:{'columns':table.get('columns',{}),'rows':table.get('rows')} for name,table in meta['tables'].items()},
         'date_selection':report['automatic_date_suggestions'],
         'matching_start_columns':[k for k in cols if k.casefold() in START_NAMES],
@@ -78,7 +78,7 @@ def convert_file(bundle, folder, staff_only=False):
     if staff_only:
         text='КАДРОВЫЙ ЧЕРНОВИК: сотрудники без карт. Не назначать доступ. Номера только в отдельном CSV сверки.\n'
     else:
-        text=f'''ПОЛНЫЙ ПРОБНЫЙ ИМПОРТ v3.5 — В ПУСТУЮ ИЗОЛИРОВАННУЮ БАЗУ SIGUR
+        text=f'''ПОЛНЫЙ ПРОБНЫЙ ИМПОРТ v1.0.0 — В ПУСТУЮ ИЗОЛИРОВАННУЮ БАЗУ SIGUR
 
 Файл: {report['cards_filename'] if stats.get('file_created') else 'XLS не создан: нет однозначных сотрудников'}.
 Сотрудников в XLS: {stats.get('people',0)}; без карт в XLS: {stats.get('people_without_cards',0)}.
@@ -88,7 +88,7 @@ def convert_file(bundle, folder, staff_only=False):
 Карт в XLS без начала: {report.get('cards_without_start',0)}; без окончания: {report.get('cards_without_end',0)}.
 Фото: {stats.get('photos',0)}.
 
-В отличие от v3.3 номера карт теперь действительно записываются в XLS.
+Номера карт записываются в XLS.
 Номера — расчётные кандидаты W34 (8 HEX-символов, включая ведущие нули),
 гипотеза raw08-dallas01-low32. CRC проверена, но совпадение с физическим
 считывателем НЕ проверено. В поле номера нет слов «НЕПОДТВЕРЖДЁН».
@@ -102,7 +102,7 @@ def convert_file(bundle, folder, staff_only=False):
 
 КАК ИМПОРТИРОВАТЬ
 1. Персонал → Импорт из таблицы MS Excel → выбрать указанный выше XLS.
-2. Заново проверьте сопоставление: номера столбцов изменились с v3.3!
+2. Заново проверьте сопоставление.
    ФИО → ФИО; Отдел → Отдел; Должность → Должность;
    Табельный номер → Табельный номер; Номер пропуска → Номер пропуска;
    Начало действия пропуска → Начало действия пропуска;
