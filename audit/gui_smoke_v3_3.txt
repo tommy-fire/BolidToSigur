@@ -1,0 +1,1 @@
+PASS: simple Tk, exactly 2 buttons, no tabs/checkboxes; mocked discovery/export -> .bolid beside app -> select file -> staff XLS without cards and diagnostic reports. Linux/Xvfb only; no live SQL/Sigur.

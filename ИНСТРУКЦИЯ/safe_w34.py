@@ -183,8 +183,9 @@ def prepare(folder):
     write_csv(target,result,REVIEW)
     return target
 
-def build(review_path, expiry_column='', start_column='', personal_mode='fields', allow_multicard_dates=False):
+def build(review_path, expiry_column='', start_column='', personal_mode='fields', allow_multicard_dates=False, candidate_draft=False):
     """Explicit approval required; no source status is interpreted as permission."""
+    if candidate_draft and allow_multicard_dates:raise ValueError('В автоматическом черновике нельзя обходить проверку нескольких карт')
     if expiry_column and start_column and expiry_column.casefold()==start_column.casefold():raise ValueError('Начало и окончание не могут быть одним полем')
     review_path = Path(review_path); rows = read_csv(review_path)
     profiles = {}; prepared = []; ids = set()
@@ -250,11 +251,15 @@ def build(review_path, expiry_column='', start_column='', personal_mode='fields'
         if pid != value(mark,'Owner','OwnerID','Person') or r.get('RawCodeP','') != value(mark,'CodeP'):
             reason = 'Изменены исходные код или владелец'
         elif pid not in source_people: reason = 'Нет владельца в исходном pList'
-        elif r.get('Approve','').strip().upper() != 'ДА': reason = 'Нет явного разрешения Approve=ДА'
+        elif not candidate_draft and r.get('Approve','').strip().upper() != 'ДА': reason = 'Нет явного разрешения Approve=ДА'
         elif not r.get('ФИО','').strip(): reason = 'Не заполнено ФИО'
         # Observed per-key numbers bypass unsupported decoder, never identity checks.
-        code = r['_observed']
-        if not code:
+        code = r['_candidate'] if candidate_draft else r['_observed']
+        if candidate_draft:
+            if not code:reason = reason or r['_error'] or 'Не удалось разобрать исходный номер'
+            if not start_column or not expiry_column:reason = reason or 'Не удалось однозначно найти оба поля срока карты'
+            if not r.get('Начало действия пропуска') or not r.get('Срок действия'):reason = reason or 'Пустая граница срока: нужно подтвердить её смысл'
+        elif not code:
             profile = r.get('Profile','').strip()
             if profile not in calibrated: reason = reason or profile_errors.get(profile,'Профиль не откалиброван')
             elif not r['_candidate']: reason = reason or r['_error']
@@ -303,6 +308,24 @@ def build(review_path, expiry_column='', start_column='', personal_mode='fields'
             valid.append(r)
         except ValueError as ex: rejected.append({**r,'Reason':'Срок: '+str(ex)})
     final = valid
+    excluded_staff=[]
+    if candidate_draft:
+        identity_owners={};tab_owners={}
+        for pid,p in details.items():
+            identity_owners.setdefault((p['fio'].strip().casefold(),p['dept'].strip().casefold()),set()).add(pid)
+            if p['tab'].strip():tab_owners.setdefault(p['tab'].strip(),set()).add(pid)
+        bad=set()
+        for pid,p in details.items():
+            reason=''
+            if not p['fio'].strip():reason='Пустое ФИО'
+            elif len(identity_owners[(p['fio'].strip().casefold(),p['dept'].strip().casefold())])>1:reason='Неоднозначные ФИО и отдел'
+            elif p['tab'].strip() and len(tab_owners[p['tab'].strip()])>1:reason='Неоднозначный табельный номер'
+            if reason:bad.add(pid);excluded_staff.append({'Орион ID':pid,'ФИО':p['fio'],'Причина':reason})
+        allowed=[]
+        for r in final:
+            if r['SourcePersonID'] in bad:rejected.append({**r,'Reason':'Неоднозначная кадровая карточка'})
+            else:allowed.append(r)
+        final=allowed;details={pid:p for pid,p in details.items() if pid not in bad}
     # Official manual is ambiguous about dates on continuation rows. Fail closed by default.
     if not allow_multicard_dates:
         dated_people={r['SourcePersonID'] for r in final if r.get('Срок действия') or r.get('Начало действия пропуска')}
@@ -314,19 +337,31 @@ def build(review_path, expiry_column='', start_column='', personal_mode='fields'
                 rejected.append({**r,'Reason':'Несколько карт со сроками: сначала требуется отдельный тест строк продолжения в установленной версии Sigur'})
             else:allowed.append(r)
         final=allowed
+    if candidate_draft:
+        for p in details.values():p['dept']='ТЕСТ — НЕ НАЗНАЧАТЬ ДОСТУП'+(', '+p['dept'] if p['dept'] else '')
+        for r in final:r['Отдел']=details[r['SourcePersonID']]['dept']
     out = source / ('result_'+datetime.datetime.now().strftime('%Y%m%d_%H%M%S_%f')); out.mkdir()
     write_csv(out/'Исключения.csv', rejected, REVIEW+['Reason'])
-    write_csv(out/'Принятые.csv', final, REVIEW+['FinalW34'])
+    if candidate_draft:
+        write_csv(out/'КАРТЫ_ТОЛЬКО_СВЕРКА_НЕ_ИМПОРТ.csv',[{'ID ключа':r['SourceKeyID'],'ID владельца':r['SourcePersonID'],'ФИО':r['ФИО'],'Исходный CodeP':r['RawCodeP'],'НЕПОДТВЕРЖДЁННЫЙ кандидат W34':'НЕПОДТВЕРЖДЁН:'+r['FinalW34'],'Начало — сверить':r.get('Начало действия пропуска',''),'Окончание — сверить':r.get('Срок действия',''),'Назначение':'ТОЛЬКО СВЕРКА, НЕ ИМПОРТ; raw08-dallas01-low32; физических совпадений: 0'} for r in final],['ID ключа','ID владельца','ФИО','Исходный CodeP','НЕПОДТВЕРЖДЁННЫЙ кандидат W34','Начало — сверить','Окончание — сверить','Назначение'])
+    else:write_csv(out/'Принятые.csv', final, REVIEW+['FinalW34'])
     report = {'complete':False, 'input_keys':len(rows),'accepted':len(final),'excluded':len(rejected),'calibrated_profiles':sorted(calibrated),'calibrated_upper_bytes':{k:sorted(v) for k,v in calibrated_upper.items()},'profile_errors':profile_errors,'note':'Фото и кадровые поля перенесены в файлы; исходные статусы/права не назначаются автоматически. Срок окончания только из явного поля/таблицы проверки. Начало и окончание с точным временем берутся только из явно выбранных полей. Режим Турникет — 24/7 назначается в Sigur отдельно.'}
     (out/'Отчёт.json').write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8')
     assert len(final)+len(rejected)==len(rows)
     # All source people are also available without keys; no rights are assigned.
-    staff_stats = export_xls(out/'Сотрудники_без_ключей.xls', details, source, personal_mode=personal_mode)
-    card_name='ДИАГНОСТИКА_НЕ_ДЛЯ_РАБОТЫ.xls' if allow_multicard_dates else 'ТЕСТ_Импорт_Sigur.xls'
-    card_stats = export_xls(out/card_name, details, source, final, personal_mode=personal_mode, experimental=allow_multicard_dates) if final else {}
+    if candidate_draft:
+        card_name='Для_Sigur_СОТРУДНИКИ_БЕЗ_КАРТ.xls'
+        card_stats=export_xls(out/card_name,details,source,final,personal_mode=personal_mode,experimental=True,include_cardless=True,draft_marker=True)
+        staff_stats={}
+        write_csv(out/'Сотрудники_исключения.csv',excluded_staff,['Орион ID','ФИО','Причина'])
+        report['excluded_staff']=len(excluded_staff)
+    else:
+        staff_stats = export_xls(out/'Сотрудники_без_ключей.xls', details, source, personal_mode=personal_mode)
+        card_name='ДИАГНОСТИКА_НЕ_ДЛЯ_РАБОТЫ.xls' if allow_multicard_dates else 'ТЕСТ_Импорт_Sigur.xls'
+        card_stats = export_xls(out/card_name, details, source, final, personal_mode=personal_mode, experimental=allow_multicard_dates) if final else {}
     checklist=[]
     for r in final+rejected:
-        checklist.append({'ID ключа':r['SourceKeyID'],'ID сотрудника':r['SourcePersonID'],'ФИО':r.get('ФИО',''),'Номер W34':r.get('FinalW34') or r.get('_observed') or r.get('_candidate',''),'Статус номера':'Принят' if not r.get('Reason') else 'НЕ ПЕРЕНОСИТЬ БЕЗ ПРОВЕРКИ','Начало':r.get('Начало действия пропуска',''),'Окончание':r.get('Срок действия',''),'Причина':r.get('Reason',''),'Имя и номер проверены в Sigur':'','Обе даты проверены в Sigur':'','Права проверены на турникете':''})
+        checklist.append({'ID ключа':r['SourceKeyID'],'ID сотрудника':r['SourcePersonID'],'ФИО':r.get('ФИО',''),'Номер W34':(('НЕПОДТВЕРЖДЁН:'+r.get('_candidate','')) if candidate_draft else (r.get('FinalW34') or r.get('_observed') or r.get('_candidate',''))),'Статус номера':('НЕПОДТВЕРЖДЁННЫЙ КАНДИДАТ' if candidate_draft else 'Принят') if not r.get('Reason') else 'НЕ ПЕРЕНОСИТЬ БЕЗ ПРОВЕРКИ','Начало':r.get('Начало действия пропуска',''),'Окончание':r.get('Срок действия',''),'Причина':r.get('Reason',''),'Имя и номер проверены в Sigur':'','Обе даты проверены в Sigur':'','Права проверены на турникете':''})
     if checklist:write_csv(out/'Сверка_каждой_карты.csv',checklist,list(checklist[0]))
     import shutil
     shutil.copy2(source/'Предупреждения_данных.csv',out/'Предупреждения_данных.csv')
@@ -334,12 +369,21 @@ def build(review_path, expiry_column='', start_column='', personal_mode='fields'
     report['source_start_column']=start_column
     report['source_end_column']=expiry_column
     report['test_only']=True
+    report['candidate_draft']=candidate_draft
+    report['hardware_verified']=False
+    report['source_statuses_verified']=False
+    report['access_rights_assigned']=False
     report['personal_mode']=personal_mode
     report['experimental_multicard_dates']=allow_multicard_dates
     report['warnings']=['До выдачи доступа проверьте оба срока каждой карты, особенно второй и последующих: руководство неоднозначно описывает даты в строках продолжения.', 'Режим Турникет — 24/7 назначить отдельно; комнату охраны не включать.', 'Пустое окончание может означать бессрочность; пустое начало Sigur может заменить временем импорта.']
     report['staff_file'] = staff_stats
     report['cards_file'] = card_stats
     report['cards_filename']=card_name
+    if candidate_draft:
+        report['draft_candidates']=report.pop('accepted')
+        report['calibrated_profiles']=[]
+        report['calibrated_upper_bytes']={}
+        report['note']='Автоматический ЧЕРНОВИК. Номера, исходные статусы и смысл дат НЕ подтверждены. Только пустая изолированная тестовая база без назначения доступа. Это не готовый рабочий перенос.'
     report['complete'] = True
     (out/'Отчёт.json').write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8')
     return out

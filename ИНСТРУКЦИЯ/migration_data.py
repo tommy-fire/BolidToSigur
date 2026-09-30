@@ -168,17 +168,18 @@ def enrich(folder):
     return details
 
 
-def export_xls(path, details, source, cards=None, personal_mode='fields', experimental=False):
+def export_xls(path, details, source, cards=None, personal_mode='fields', experimental=False, include_cardless=False, draft_marker=False):
     if personal_mode not in ('fields','notes'):raise ValueError('Неизвестный режим кадровых полей')
     """cards=None exports people only; all exact duplicates/homonyms quarantined."""
     from safe_w34 import write_csv
     import xlwt
     path=Path(path); source=Path(source); grouped={}; issues=[]
-    if cards is None:
-        for pid,p in details.items():
-            grouped[pid]=[{'SourcePersonID':pid,'ФИО':p['fio'],'Отдел':p['dept'],'Должность':p['post'],'Табельный номер':p['tab'],'FinalW34':'','Срок действия':''}]
-    else:
+    if cards is not None and not draft_marker:
         for r in cards:grouped.setdefault(r['SourcePersonID'],[]).append(r)
+    if cards is None or include_cardless:
+        for pid,p in details.items():
+            if pid in grouped:continue
+            grouped[pid]=[{'SourcePersonID':pid,'ФИО':p['fio'],'Отдел':p['dept'],'Должность':p['post'],'Табельный номер':p['tab'],'FinalW34':'','Срок действия':''}]
     identities={}; tabs={}
     for pid,rows in grouped.items():
         row=rows[0];identities.setdefault((row['ФИО'].strip().casefold(),row['Отдел'].strip().casefold()),set()).add(pid)
@@ -211,7 +212,7 @@ def export_xls(path, details, source, cards=None, personal_mode='fields', experi
             (path.parent/'Фотографии').mkdir(exist_ok=True)
             shutil.copy2(source/Path(photo.replace('\\','/')),path.parent/Path(photo.replace('\\','/')));photos+=1
         for j,r in enumerate(rows):
-            vals=[r['ФИО'],r['Отдел'],r['Должность'],r['FinalW34'],r.get('Срок действия',''),r['Табельный номер'],'Карта' if r['FinalW34'] else '','Сотрудник',photo,person['note'] if personal_mode=='notes' else '',pid,r.get('Начало действия пропуска','')]+[person['extra'].get(k,'') for k in extra_cols]
+            vals=[r['ФИО'],r['Отдел'],r['Должность'],r['FinalW34'],r.get('Срок действия',''),r['Табельный номер'],'Карта' if r['FinalW34'] else '','Сотрудник',photo,((person['note'] if personal_mode=='notes' or draft_marker else '')+('\nТЕСТ. Номера карт и статусы НЕ ПРОВЕРЕНЫ. НЕ НАЗНАЧАТЬ ДОСТУП.' if draft_marker else '')),pid,r.get('Начало действия пропуска','')]+[person['extra'].get(k,'') for k in extra_cols]
             if j:
                 vals=['']*(len(cols)+len(extra_cols))
                 for field,val in [('Номер пропуска',r['FinalW34']),('Тип пропуска','Карта'),('Окончание действия пропуска',r.get('Срок действия','')),('Начало действия пропуска',r.get('Начало действия пропуска',''))]:vals[cols.index(field)]=val

@@ -10,7 +10,7 @@ import tkinter as tk
 from tkinter import ttk
 from unittest.mock import patch
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'ИНСТРУКЦИЯ'))
-import Безопасная_миграция as ui
+import Проверка_специалиста as ui
 import test_bundle
 import safe_w34 as s
 import transfer_bundle as b
