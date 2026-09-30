@@ -13,7 +13,7 @@ from simple_flow import export_database, convert_file
 
 
 def main():
-    root=tk.Tk();root.title('Болид → Sigur');root.geometry('720x520');root.minsize(680,500)
+    root=tk.Tk();root.title('Болид → Sigur · v3.4');root.geometry('720x520');root.minsize(680,500)
     root.configure(padx=18,pady=15)
     home=Path(__file__).resolve().parent
     user=tk.StringVar();password=tk.StringVar();status=tk.StringVar(value='Введите логин и пароль либо сразу выберите ранее сохранённую выгрузку.')
@@ -77,17 +77,18 @@ def main():
         status.set('Готовлю файл для Sigur и отчёт. База Болид не требуется…')
         def done(result):
             out,report=result
-            candidates=report.get('draft_candidates',0)
+            candidates=report.get('trial_cards',0)
             count=report.get('cards_file',{}).get('people',0)
-            status.set(f'Готово: {out.name}\nСотрудников: {count}. Кандидатов карт для сверки: {candidates}.')
-            messagebox.showinfo('Файлы подготовлены',f'Результат: {out}\n\nСотрудников: {count}.\nНеподтверждённые номера карт — в отдельном отчёте, НЕ выданы как пропуска.\n\nФайл кадров для Sigur готовится без номеров карт до первой сверки реальных считываний. Прочитайте СНАЧАЛА_ПРОЧИТАТЬ.txt. Рабочую систему пока не переключайте.')
+            status.set(f'Подготовлено: {out.name}\nСотрудников: {count}. Карт в XLS: {candidates}. Исключено ключей: {report.get("excluded",0)}.')
+            filename=report.get('cards_filename','') if report.get('cards_file',{}).get('file_created') else 'XLS НЕ создан: нет однозначных сотрудников'
+            messagebox.showinfo('Результат пробного переноса',f'Результат: {out}\n\n{filename}\nСотрудников: {count}. Карт в XLS: {candidates} из {report["input_keys"]}.\nИсключено ключей: {report["excluded"]}.\nКарт без начала: {report.get("cards_without_start",0)}; без окончания: {report.get("cards_without_end",0)}.\n\nТолько пустая тестовая база БЕЗ ДОСТУПА. Карты ещё не сверены; блокировки Болид НЕ перенесены. Пустой конец может дать бессрочность.\n\nПри импорте НЕ включайте «Тип пропуска». Сопоставьте остальные колонки заново ПО НАЗВАНИЯМ: старые номера столбцов изменились.\n\nЕсли даты пустые — пришлите ДИАГНОСТИКА_СТРУКТУРЫ.json. Инструкция: СНАЧАЛА_ПРОЧИТАТЬ.txt.')
             open_folder(out)
         task(lambda:convert_file(path,home),done)
     for label,fn in [('1. Найти базу и выгрузить',step_one),('2. Выбрать выгрузку и создать файл Sigur',step_two)]:
         b=ttk.Button(root,text=label,command=fn);b.pack(fill='x',ipady=10,pady=5);buttons.append(b)
     ttk.Separator(root).pack(fill='x',pady=12)
     ttk.Label(root,textvariable=status,wraplength=665).pack(anchor='w')
-    ttk.Label(root,text='Номера карт требуют первой проверки на считывателе. До неё XLS содержит только кадровые карточки; коды карт — в отчёте сверки. Права доступа программа не назначает.',wraplength=665,foreground='#844300').pack(anchor='w',pady=10)
+    ttk.Label(root,text='Полный ПРОБНЫЙ импорт: сотрудники + карты + найденные сроки. Только пустая тестовая база без доступа. Номера не сверены; блокировки Болид НЕ перенесены.',wraplength=665,foreground='#844300').pack(anchor='w',pady=10)
     def poll():
         try:
             while True:

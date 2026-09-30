@@ -37,8 +37,13 @@ def run():
                     elif step['n']==2 and len(notices)>=2:
                         outputs=list(app.glob('Для_Sigur_*'));assert len(outputs)==1
                         report=json.loads((outputs[0]/'Отчёт.json').read_text())
-                        assert report['candidate_draft'] and report['hardware_verified'] is False
-                        assert (outputs[0]/'Для_Sigur_СОТРУДНИКИ_БЕЗ_КАРТ.xls').exists()
+                        assert report['trial_import'] and report['hardware_verified'] is False
+                        assert (outputs[0]/'ПРОБНЫЙ_ПОЛНЫЙ_Импорт_Sigur.xls').exists()
+                        import xlrd
+                        sh=xlrd.open_workbook(outputs[0]/report['cards_filename']).sheet_by_index(0)
+                        assert sh.cell_value(1,sh.row_values(0).index('Номер пропуска'))=='12340001'
+                        assert 'Тип пропуска' not in sh.row_values(0)
+                        assert report['trial_cards']==1
                         window.geometry('680x500');window.update_idletasks()
                         assert buttons[1].winfo_rooty()+buttons[1].winfo_height()<window.winfo_rooty()+500
                         step['n']=3;finish();return
@@ -48,6 +53,6 @@ def run():
         with patch.object(ui,'__file__',str(app/'Безопасная_миграция.py')),patch.object(ui,'discover',return_value=[{'server':'mock','db':'mock'}]),patch.object(ui.importlib.util,'find_spec',return_value=object()),patch.object(flow,'snapshot',return_value=src),patch.object(ui.filedialog,'askopenfilename',side_effect=lambda **kw:str(next(app.glob('*.bolid')))),patch.object(ui.messagebox,'showinfo',side_effect=lambda *a:notices.append(a)),patch.object(ui.messagebox,'showerror',side_effect=lambda *a:errors.append(a)),patch.object(tk.Tk,'mainloop',loop):
             ui.main()
         assert step['n']==3 and not errors,(step,errors)
-        print('PASS: simple Tk, exactly 2 buttons, no tabs/checkboxes; mocked discovery/export -> .bolid beside app -> select file -> staff XLS without cards and diagnostic reports. Linux/Xvfb only; no live SQL/Sigur.')
+        print('PASS: simple Tk, exactly 2 buttons, no tabs/checkboxes; mocked discovery/export -> .bolid beside app -> select file -> full trial XLS with a candidate card, no pass-type column, and diagnostic reports. Linux/Xvfb only; no live SQL/Sigur.')
 
 if __name__=='__main__':run()

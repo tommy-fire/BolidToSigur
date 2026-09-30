@@ -168,7 +168,7 @@ def enrich(folder):
     return details
 
 
-def export_xls(path, details, source, cards=None, personal_mode='fields', experimental=False, include_cardless=False, draft_marker=False):
+def export_xls(path, details, source, cards=None, personal_mode='fields', experimental=False, include_cardless=False, draft_marker=False, trial_marker=False):
     if personal_mode not in ('fields','notes'):raise ValueError('Неизвестный режим кадровых полей')
     """cards=None exports people only; all exact duplicates/homonyms quarantined."""
     from safe_w34 import write_csv
@@ -200,9 +200,10 @@ def export_xls(path, details, source, cards=None, personal_mode='fields', experi
     cols=['ФИО','Отдел','Должность','Номер пропуска','Окончание действия пропуска','Табельный номер','Тип пропуска',
           'Тип записи','Имя файла фотографии','Примечание','Орион ID','Начало действия пропуска']
     if len(cols)+len(extra_cols)>256:raise ValueError('Превышен лимит колонок XLS, требуется явный выбор полей')
+    output_cols=[c for c in cols+extra_cols if c!='Тип пропуска']
     wb=xlwt.Workbook();ws=wb.add_sheet('ДИАГНОСТИКА' if experimental else 'Импорт');style=xlwt.easyxf('align: wrap on, vert top',num_format_str='@')
     hdr=xlwt.easyxf('font: bold on',num_format_str='@')
-    for i,h in enumerate(cols+extra_cols):ws.write(0,i,h,hdr);ws.col(i).width=6500
+    for i,h in enumerate(output_cols):ws.write(0,i,h,hdr);ws.col(i).width=6500
     idx=1;photos=0
     for pid,rows in selected.items():
         person=details[pid];ident={(r['ФИО'],r['Отдел'],r['Должность'],r['Табельный номер']) for r in rows}
@@ -212,12 +213,15 @@ def export_xls(path, details, source, cards=None, personal_mode='fields', experi
             (path.parent/'Фотографии').mkdir(exist_ok=True)
             shutil.copy2(source/Path(photo.replace('\\','/')),path.parent/Path(photo.replace('\\','/')));photos+=1
         for j,r in enumerate(rows):
-            vals=[r['ФИО'],r['Отдел'],r['Должность'],r['FinalW34'],r.get('Срок действия',''),r['Табельный номер'],'Карта' if r['FinalW34'] else '','Сотрудник',photo,((person['note'] if personal_mode=='notes' or draft_marker else '')+('\nТЕСТ. Номера карт и статусы НЕ ПРОВЕРЕНЫ. НЕ НАЗНАЧАТЬ ДОСТУП.' if draft_marker else '')),pid,r.get('Начало действия пропуска','')]+[person['extra'].get(k,'') for k in extra_cols]
+            vals=[r['ФИО'],r['Отдел'],r['Должность'],r['FinalW34'],r.get('Срок действия',''),r['Табельный номер'],'Карта' if r['FinalW34'] else '','Сотрудник',photo,((person['note'] if personal_mode=='notes' or draft_marker or trial_marker else '')+('\nТЕСТ. Номера карт и статусы НЕ ПРОВЕРЕНЫ. НЕ НАЗНАЧАТЬ ДОСТУП.' if draft_marker else '')),pid,r.get('Начало действия пропуска','')]+[person['extra'].get(k,'') for k in extra_cols]
             if j:
                 vals=['']*(len(cols)+len(extra_cols))
                 for field,val in [('Номер пропуска',r['FinalW34']),('Тип пропуска','Карта'),('Окончание действия пропуска',r.get('Срок действия','')),('Начало действия пропуска',r.get('Начало действия пропуска',''))]:vals[cols.index(field)]=val
+            if trial_marker and not j:
+                vals[cols.index('Примечание')]+='\nПРОБНЫЙ ПЕРЕНОС raw08-dallas01-low32. Номера НЕ СВЕРЕНЫ со считывателем. Исходные блокировки НЕ ПЕРЕНЕСЕНЫ. НЕ НАЗНАЧАТЬ ДОСТУП до проверки.'
+            vals=[v for c,v in zip(cols+extra_cols,vals) if c!='Тип пропуска']
             for i,v in enumerate(vals):
-                if len(str(v))>32767:raise ValueError(f'Слишком длинное поле: {pid}, {cols[i] if i<len(cols) else extra_cols[i-len(cols)]}')
+                if len(str(v))>32767:raise ValueError(f'Слишком длинное поле: {pid}, {output_cols[i]}')
                 ws.write(idx,i,str(v),style)
             idx+=1
     if selected:

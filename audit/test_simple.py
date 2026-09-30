@@ -22,9 +22,10 @@ class SimpleTests(unittest.TestCase):
         import xlrd
         sh=xlrd.open_workbook(out/report['cards_filename']).sheet_by_index(0)
         headers=sh.row_values(0)
+        self.assertNotIn('Тип пропуска',headers)
         for i in range(1,sh.nrows):
             r=dict(zip(headers,sh.row_values(i)))
-            for field in ['Номер пропуска','Тип пропуска','Начало действия пропуска','Окончание действия пропуска']:self.assertEqual(r[field],'')
+            for field in ['Номер пропуска','Начало действия пропуска','Окончание действия пропуска']:self.assertEqual(r[field],'')
             self.assertIn('НЕ НАЗНАЧАТЬ ДОСТУП',r['Отдел']);self.assertIn('НЕ ПРОВЕРЕНЫ',r['Примечание'])
         self.assertNotIn('accepted',report);self.assertFalse(report['hardware_verified']);self.assertFalse(report['access_rights_assigned'])
         self.assertFalse((out/'Принятые.csv').exists())
@@ -37,7 +38,7 @@ class SimpleTests(unittest.TestCase):
             path.unlink();s.prepare(src)
             package=b.pack(src,root/'data.bolid');before=hashlib.sha256(package.read_bytes()).hexdigest()
             with patch.object(s,'load_exporter',side_effect=AssertionError('No SQL')):
-                out,report=simple.convert_file(package,root/'app')
+                out,report=simple.convert_file(package,root/'app',staff_only=True)
             self.assert_no_passes(out,report);self.assertEqual(report['draft_candidates'],1)
             self.assertEqual(hashlib.sha256(package.read_bytes()).hexdigest(),before)
             diagnostic=s.read_csv(out/'КАРТЫ_ТОЛЬКО_СВЕРКА_НЕ_ИМПОРТ.csv')
@@ -50,7 +51,7 @@ class SimpleTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             root=Path(td);src,path=self.setup_bundle(root,dates=False)
             marks=s.read_csv(src/'pMark.csv');marks[0].update(CodeP='0800',Status='blocked');s.write_csv(src/'pMark.csv',marks,list(marks[0]));path.unlink();s.prepare(src)
-            package=b.pack(src,root/'data.bolid');out,report=simple.convert_file(package,root/'app')
+            package=b.pack(src,root/'data.bolid');out,report=simple.convert_file(package,root/'app',staff_only=True)
             sh=self.assert_no_passes(out,report);self.assertEqual(sh.nrows,2)
             self.assertEqual(report['draft_candidates'],0);self.assertEqual(report['excluded'],1)
             self.assertFalse(report['source_statuses_verified'])
@@ -59,7 +60,7 @@ class SimpleTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             root=Path(td);src,path=self.setup_bundle(root)
             people=s.read_csv(src/'pList.csv');people.append({**people[0],'ID':'2'});s.write_csv(src/'pList.csv',people,list(people[0]))
-            package=b.pack(src,root/'data.bolid');out,report=simple.convert_file(package,root/'app')
+            package=b.pack(src,root/'data.bolid');out,report=simple.convert_file(package,root/'app',staff_only=True)
             self.assertEqual(report['excluded_staff'],2);self.assertEqual(report['draft_candidates'],0)
             self.assertFalse(report['cards_file']['file_created']);self.assertFalse(list(out.glob('*.xls')))
 
@@ -67,7 +68,7 @@ class SimpleTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             root=Path(td);src,path=self.setup_bundle(root)
             rows=s.read_csv(path);rows[0].update(Approve='ДА',ObservedW34='DEADBEEF');s.write_csv(path,rows,s.REVIEW)
-            package=b.pack(src,root/'data.bolid');out,report=simple.convert_file(package,root/'app');self.assert_no_passes(out,report)
+            package=b.pack(src,root/'data.bolid');out,report=simple.convert_file(package,root/'app',staff_only=True);self.assert_no_passes(out,report)
             self.assertEqual(report['calibrated_profiles'],[])
             self.assertNotIn('DEADBEEF',(out/'КАРТЫ_ТОЛЬКО_СВЕРКА_НЕ_ИМПОРТ.csv').read_text())
 
@@ -77,7 +78,7 @@ class SimpleTests(unittest.TestCase):
         self.assertEqual(simple.unique_field(['sTaRt'],simple.START_NAMES),'sTaRt')
         with tempfile.TemporaryDirectory() as td:
             root=Path(td);src,path=self.setup_bundle(root,n=2)
-            out,report=simple.convert_file(b.pack(src,root/'data.bolid'),root/'app')
+            out,report=simple.convert_file(b.pack(src,root/'data.bolid'),root/'app',staff_only=True)
             self.assert_no_passes(out,report);self.assertEqual(report['excluded'],2)
             self.assertEqual(len(s.read_csv(out/'Данные_всех_ключей.csv')),2)
 
