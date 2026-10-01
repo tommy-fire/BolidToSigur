@@ -1,4 +1,4 @@
-"""Simple UI smoke: real Tk + synthetic SQL export; no hardware/live SQL."""
+"""Простая проверка интерфейса: настоящий Tk и синтетическая выгрузка SQL; без железа и живой БД."""
 import json
 from pathlib import Path
 import sys

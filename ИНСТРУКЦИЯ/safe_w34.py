@@ -1,10 +1,10 @@
-"""Strict, offline-verifiable W34 migration. No writes to source or destination DB.
-Community CodeP layout is a supported hypothesis, not a universal Bolid format.
+"""Строгая W34-миграция с офлайн-проверками. Без записей в исходную и целевую БД.
+Раскладка CodeP из сообщества — поддерживаемая гипотеза, а не универсальный формат Болид.
 """
 import csv, json, re, os, datetime, importlib.machinery, importlib.util
 from pathlib import Path
 
-# Photos in HEX may exceed the default CSV parser field limit.
+# Фото в HEX могут превышать полевой лимит CSV-парсера.
 csv.field_size_limit(2**31-1)
 
 HEX = re.compile(r'[0-9A-Fa-f]+')
@@ -63,7 +63,7 @@ def load_exporter():
 
 
 def discover(user='', password='', manual='', log=lambda _: None):
-    """Reuse established discovery, record the actual successful auth per result."""
+    """Переиспользуем найденное подключение; в каждом результате фиксируем реально успешную аутентификацию."""
     e = load_exporter()
     servers = e.collect_servers(manual)
     result = []
@@ -92,7 +92,7 @@ def discover(user='', password='', manual='', log=lambda _: None):
 
 
 def snapshot(server, db, user, password, out):
-    """Export each table independently, retaining orphan marks and binary fields."""
+    """Каждую таблицу выгружаем независимо, сохраняем осиротевшие записи и бинарные поля."""
     e = load_exporter(); root = Path(out)
     root.mkdir(parents=True, exist_ok=True)
     dest = root / ('snapshot_'+datetime.datetime.now().strftime('%Y%m%d_%H%M%S_%f'))
@@ -114,7 +114,7 @@ def snapshot(server, db, user, password, out):
             selects = []
             for name, typ in cols:
                 q = e.qi(name)
-                # Serialize varchar CodeP on server: don't round-trip through Unicode.
+                # Сериализуем varchar CodeP на стороне сервера, без лишних преобразований через Unicode.
                 if typ in ('binary','varbinary','image','timestamp','rowversion') or (name.lower() in ('codep','codepadd') and typ in ('varchar','char','text')):
                     q = f'CONVERT(varbinary(max), {q})'
                 selects.append(q)
@@ -134,7 +134,7 @@ def snapshot(server, db, user, password, out):
         (dest/'schema.json').write_text(json.dumps(meta,ensure_ascii=False,indent=2),encoding='utf-8')
         (dest/'COMPLETE.txt').write_text('Оба SELECT завершены. NULL в CSV представлен пустой ячейкой. Фото/двоичные поля сохранены HEX. Не является резервной копией SQL.\n',encoding='utf-8')
     finally: conn.close()
-    # Raw export is already complete even if enrichment encounters unsupported fields.
+    # Исходная выгрузка полная, даже если при обогащении встретятся неподдерживаемые поля.
     from migration_data import enrich
     enrich(dest)
     return dest
@@ -178,14 +178,14 @@ def prepare(folder):
         result[-1]['Исходный срок'] = end_value
         result[-1]['Поле срока'] = end_field
         result[-1]['Начало действия пропуска'] = ''
-        # Preserved as metadata; user chooses whether this is really the expiry.
+        # Храним как метаданные; является ли это сроком окончания — решает пользователь.
     target = folder/'Проверка.csv'
     if target.exists(): raise ValueError('Проверка.csv уже существует: не перезаписываю вашу проверку')
     write_csv(target,result,REVIEW)
     return target
 
 def build(review_path, expiry_column='', start_column='', personal_mode='fields', allow_multicard_dates=False, candidate_draft=False, trial_import=False):
-    """Strict path requires approval; explicit trial mode emits unverified test candidates."""
+    """Строгий путь требует подтверждения; явный пробный режим выдаёт несверенные тестовые кандидаты."""
     if candidate_draft and trial_import:raise ValueError('Выберите один режим подготовки')
     automatic = candidate_draft or trial_import
     if candidate_draft and allow_multicard_dates:raise ValueError('В автоматическом черновике нельзя обходить проверку нескольких карт')
@@ -196,14 +196,14 @@ def build(review_path, expiry_column='', start_column='', personal_mode='fields'
         kid = r.get('SourceKeyID','').strip()
         if not kid or kid in ids: raise ValueError('Пустой/повторный SourceKeyID')
         ids.add(kid)
-        # Identity must correspond to the unmodified source export.
+        # Состав записей должен соответствовать неизменённой исходной выгрузке.
         r['_candidate'] = ''; r['_error'] = ''; r['_upper'] = ''
         try:
             abd,r['_candidate'] = decode(r.get('RawCodeP',''),r.get('Format','raw'))
             r['_upper'] = abd[2:6]
         except ValueError as ex: r['_error'] = str(ex)
         if automatic:
-            # Automatic trial never inherits operator approvals or calibration.
+            # Автоматический пробный импорт никогда не наследует подтверждения оператора или калибровку.
             r['Approve']=r['ObservedW34']=r['Profile']=''
             r['Срок действия']=r['Начало действия пропуска']=''
         obs = r.get('ObservedW34','').strip().upper()
@@ -232,7 +232,7 @@ def build(review_path, expiry_column='', start_column='', personal_mode='fields'
         original = source_marks[r['SourceKeyID']]
         if r.get('SourcePersonID','') != value(original,'Owner','OwnerID','Person') or r.get('RawCodeP','') != value(original,'CodeP') or r.get('Format','raw') != 'raw':
             raise ValueError('Изменены исходные код/владелец/формат: '+r['SourceKeyID'])
-    # Include unapproved keys: a blocked key can collide after 32-bit truncation.
+    # Включаем неподтверждённые ключи: заблокированный ключ тоже может вступить в коллизию после усечения до 32 бит.
     all_candidate_owners = {}
     for r in prepared:
         for code in {r['_candidate'], r['_observed']} - {''}:
@@ -260,7 +260,7 @@ def build(review_path, expiry_column='', start_column='', personal_mode='fields'
         elif pid not in source_people: reason = 'Нет владельца в исходном pList'
         elif not automatic and r.get('Approve','').strip().upper() != 'ДА': reason = 'Нет явного разрешения Approve=ДА'
         elif not r.get('ФИО','').strip(): reason = 'Не заполнено ФИО'
-        # Observed per-key numbers bypass unsupported decoder, never identity checks.
+        # Наблюдаемые номера по ключам обходят неподдерживаемый декодер, но не проверки состава.
         code = r['_candidate'] if automatic else r['_observed']
         if automatic:
             if r.get('DecodeError'):reason=reason or r['DecodeError']
@@ -279,7 +279,7 @@ def build(review_path, expiry_column='', start_column='', personal_mode='fields'
             reason = 'Профиль содержит несовпадение: остановлен целиком, включая ручные номера'
         if reason: rejected.append({**r,'Reason':reason})
         else: accepted.append({**r,'FinalW34':code})
-    # Reject all participants of a collision or overflow, not only the last one.
+    # Отклоняем всех участников коллизии или переполнения, а не только последнего.
     code_owners = {}; person_cards = {}; identities = {}; tabs = {}
     for r in accepted:
         pid = r['SourcePersonID']; code_owners.setdefault(r['FinalW34'],set()).add(pid)
@@ -296,7 +296,7 @@ def build(review_path, expiry_column='', start_column='', personal_mode='fields'
         elif (pid,code) in seen: reason = 'Повтор номера у одного человека: требуется ручное устранение дубля'
         if reason: rejected.append({**r,'Reason':reason})
         else: final.append(r); seen.add((pid,code))
-    # A repeated card with different expiry must not select an arbitrary first row.
+    # Повторившаяся карта с другим сроком не должна попадаться по первой попавшейся строке.
     counts = {}
     for r in accepted: counts[(r['SourcePersonID'],r['FinalW34'])] = counts.get((r['SourcePersonID'],r['FinalW34']),0)+1
     unique = []
@@ -306,7 +306,7 @@ def build(review_path, expiry_column='', start_column='', personal_mode='fields'
     final = unique
     from migration_data import enrich, export_xls, normalize_access
     details = enrich(source)
-    # Reject invalid deadlines before accounting; preserve full time in raw CSV.
+    # Некорректные сроки отклоняем до подсчёта; полное время сохраняем в сыром CSV.
     valid = []
     for r in final:
         try:
@@ -334,7 +334,7 @@ def build(review_path, expiry_column='', start_column='', personal_mode='fields'
             if r['SourcePersonID'] in bad:rejected.append({**r,'Reason':'Неоднозначная кадровая карточка'})
             else:allowed.append(r)
         final=allowed;details={pid:p for pid,p in details.items() if pid not in bad}
-    # Official manual is ambiguous about dates on continuation rows. Fail closed by default.
+    # По датам в строках продолжения руководства неоднозначны. По умолчанию — консервативно: исключаем.
     if not allow_multicard_dates and not trial_import:
         dated_people={r['SourcePersonID'] for r in final if r.get('Срок действия') or r.get('Начало действия пропуска')}
         totals={}
@@ -357,7 +357,7 @@ def build(review_path, expiry_column='', start_column='', personal_mode='fields'
     report = {'complete':False, 'input_keys':len(rows),'accepted':len(final),'excluded':len(rejected),'calibrated_profiles':sorted(calibrated),'calibrated_upper_bytes':{k:sorted(v) for k,v in calibrated_upper.items()},'profile_errors':profile_errors,'note':'Фото и кадровые поля перенесены в файлы; исходные статусы/права не назначаются автоматически. Срок окончания только из явного поля/таблицы проверки. Начало и окончание с точным временем берутся только из явно выбранных полей. Режим Турникет — 24/7 назначается в Sigur отдельно.'}
     (out/'Отчёт.json').write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8')
     assert len(final)+len(rejected)==len(rows)
-    # All source people are also available without keys; no rights are assigned.
+    # Все сотрудники из источника доступны и без ключей; права не назначаются.
     if candidate_draft:
         card_name='Для_Sigur_СОТРУДНИКИ_БЕЗ_КАРТ.xls'
         card_stats=export_xls(out/card_name,details,source,final,personal_mode=personal_mode,experimental=True,include_cardless=True,draft_marker=True)

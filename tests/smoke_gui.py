@@ -1,5 +1,5 @@
-"""Run: xvfb-run -a python audit/smoke_gui.py
-Real Tk event loop, mocked dialogs, synthetic offline file. No SQL/Sigur access.
+"""Запуск: python tests/smoke_gui.py
+Настоящий цикл событий Tk, заглушки диалогов, синтетический офлайн-файл. Без SQL и Sigur.
 """
 import json
 from pathlib import Path

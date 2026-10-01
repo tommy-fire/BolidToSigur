@@ -1,4 +1,4 @@
-"""Two-stage Tk UI. SQL is used only in stage 1; stage 2 opens portable files."""
+"""Двухшаговый Tk-интерфейс. SQL используется только на шаге 1; шаг 2 открывает портативные файлы."""
 import datetime
 import importlib.util
 import subprocess
@@ -18,7 +18,7 @@ NO_FIELD='Не переносить автоматически'
 
 
 def main():
-    root=tk.Tk();root.title('Болид → файл → Sigur · v3.2');root.geometry('1180x820');root.minsize(880,680)
+    root=tk.Tk();root.title('Болид → файл → Sigur · Проверка специалиста');root.geometry('1180x820');root.minsize(880,680)
     q=queue.Queue();buttons=[];fields={}
     state={'found':[],'auth':None,'path':None,'rows':[],'busy':False,'result':None}
     ttk.Label(root,text='Болид → один файл .bolid → XLS для Sigur',font=('Segoe UI',15,'bold')).pack(anchor='w',padx=12,pady=(10,4))
@@ -126,7 +126,7 @@ def main():
     button(source_actions,'У меня уже есть файл →',lambda:tabs.select(target_tab))
     ttk.Label(source_tab,text='Файл .bolid — контейнер нашей программы, не резервная копия SQL и не файл импорта Sigur.\nЕго не нужно распаковывать вручную. На другой компьютер достаточно перенести этот файл и папку программы.\nФайл содержит персональные данные и номера карт. Он НЕ зашифрован — храните его в защищённом месте.',wraplength=1000).pack(anchor='w',pady=12)
 
-    # Stage 2 is independent of SQL; read-only access to the archive, edits in a new work directory.
+    # Шаг 2 не зависит от SQL; доступ к архиву только чтение, правки — в новой рабочей папке.
     loadbar=ttk.Frame(target_tab);loadbar.pack(fill='x')
     ttk.Label(target_tab,text='Подключение к Болид для этого шага не нужно. Отображаемый кандидат номера ещё не подтверждает проход карты.',wraplength=1100).pack(anchor='w')
     summary=tk.StringVar(value='Откройте файл .bolid. Для старой рабочей папки можно выбрать Проверка.csv.')

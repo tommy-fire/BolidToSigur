@@ -1,15 +1,9 @@
-# служебное — в репозиторий не попадает
-.ssh/
-_ref/
+# Служебное — в репозиторий не попадает
 __pycache__/
 *.pyc
-.arena/
 Thumbs.db
-.sudo_as_admin_successful
-.gitconfig
-uploads/
 
-# Local personal/access-control exports must never be committed
+# Локальные персональные выгрузки — не коммитить
 snapshot_*/
 result_*/
 BolidExport/
@@ -17,7 +11,7 @@ BolidExport/
 pList.csv
 pMark.csv
 
-# Portable personnel/card archives and working copies
+# Архивы и рабочие копии программы
 *.bolid
 project_*/
 .opening_*/

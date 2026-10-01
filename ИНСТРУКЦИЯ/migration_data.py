@@ -1,5 +1,5 @@
-"""Personnel enrichment, photos and Sigur text-cell XLS output.
-No SQL writes. Binary/technical source fields retained in the snapshot, not discarded.
+"""Кадровые данные, фотографии и XLS-вывод для Sigur (текстовые ячейки).
+Записей в SQL нет. Бинарные и технические исходные поля сохраняются в снимке, не отбрасываются.
 """
 import base64, datetime, hashlib, io, json, re, shutil
 from pathlib import Path
@@ -17,7 +17,7 @@ def normalize_expiry(raw):
     return dt.strftime('%d.%m.%Y')
 
 def normalize_access(raw):
-    """Exact local date/time; no implicit timezone conversion or rounding."""
+    """Точная локальная дата/время; без неявного перевода часовых поясов и округления."""
     raw=str(raw or '').strip()
     if not raw:return ''
     for fmt in ('%d.%m.%Y %H:%M:%S','%d.%m.%Y %H:%M','%Y-%m-%d %H:%M:%S','%d.%m.%Y','%Y-%m-%d'):
@@ -89,8 +89,8 @@ def expiry_candidate(row):
 def photo_bytes(raw, folder):
     raw=str(raw or '').strip()
     if not raw: return b''
-    # Decode embedded image first. External paths are read only if file exists;
-    # UNC paths are deliberately not opened (avoid leaking network credentials).
+    # Сначала декодируем вложенное изображение. Внешние пути читаются, только если файл существует;
+    # UNC-пути намеренно не открываются (чтобы не передавать учётные данные сети).
     if re.fullmatch('[0-9A-Fa-f]+',raw) and len(raw)%2==0:
         return bytes.fromhex(raw)
     if len(raw)>40 and (raw.startswith('data:image/') or re.fullmatch(r'[A-Za-z0-9+/=\s]+',raw)):
@@ -169,14 +169,14 @@ def enrich(folder):
 
 
 def birthdate_note(person):
-    """Only a validated, unambiguous birthday; raw notes stay in source/reports."""
+    """Только проверенная и однозначная дата рождения; исходные заметки остаются в источнике и отчётах."""
     birth=person.get('extra',{}).get('Дата рождения','')
     return 'Дата рождения: '+birth if birth else ''
 
 
 def export_xls(path, details, source, cards=None, personal_mode='fields', experimental=False, include_cardless=False, draft_marker=False, trial_marker=False):
     if personal_mode not in ('fields','notes'):raise ValueError('Неизвестный режим кадровых полей')
-    """cards=None exports people only; all exact duplicates/homonyms quarantined."""
+    """cards=None — выгружаются только люди; точные дубликаты и однофамильцы изолируются."""
     from safe_w34 import write_csv
     import xlwt
     path=Path(path); source=Path(source); grouped={}; issues=[]

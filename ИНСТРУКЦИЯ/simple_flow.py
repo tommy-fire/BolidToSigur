@@ -1,5 +1,5 @@
-"""Two-button workflow; full trial import does not claim verified W34 or rights.
-The staff-only draft remains an internal regression/diagnostic option, not a UI setting.
+"""Двухкнопочный сценарий; полный пробный импорт не претендует на сверенные W34 и права.
+Кадровый черновик — внутренний диагностический режим, а не настройка интерфейса.
 """
 import datetime
 import json
@@ -7,7 +7,7 @@ from pathlib import Path
 from safe_w34 import snapshot, prepare, build, read_csv, write_csv, value
 from transfer_bundle import pack, unpack
 
-# Exact name hypotheses, never 'first date-like value'. All choices are reported.
+# Только точные совпадения имён полей, никогда «первое похожее на дату». Все решения — в отчёт.
 START_NAMES={'start','validfrom','startdate','datestart','begindate','datebegin',
              'starttime','timestart','begintime','timebegin','datebeg','validsince'}
 END_NAMES={'finish','validuntil','enddate','dateend','expiredate','expirationdate',
@@ -28,7 +28,7 @@ def export_database(db, folder):
 
 
 def convert_file(bundle, folder, staff_only=False):
-    """New work copy only; no SQL and no inherited operator decisions."""
+    """Только новая рабочая копия; без SQL и без унаследованных решений оператора."""
     folder=Path(folder);folder.mkdir(parents=True,exist_ok=True)
     review=unpack(bundle,folder/'Служебные')
     review.unlink();prepare(review.parent)
@@ -52,7 +52,7 @@ def convert_file(bundle, folder, staff_only=False):
         'missing_source_start_values':sum(not value(m,start).strip() for m in marks) if start else len(marks),
         'missing_source_end_values':sum(not value(m,end).strip() for m in marks) if end else len(marks),
     }
-    # No row values, names, IDs, photos, passwords or card numbers in this shareable diagnostic.
+    # В этом передаваемом отчёте нет значений строк, имён, ID, фото, паролей и номеров карт.
     (result/'ДИАГНОСТИКА_СТРУКТУРЫ.json').write_text(json.dumps(structural,ensure_ascii=False,indent=2),encoding='utf-8')
     if not staff_only:
         cards=read_csv(result/'КАРТЫ_ПРОБНОГО_ИМПОРТА.csv')

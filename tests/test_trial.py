@@ -1,4 +1,4 @@
-"""v3.4 full trial: checks XLS content, not live Sigur/reader behaviour."""
+"""Полный пробный импорт: проверяется содержимое XLS, а не живое поведение Sigur и считывателя."""
 import hashlib
 import io
 import json
@@ -131,7 +131,7 @@ class TrialTests(unittest.TestCase):
             root=Path(td);src,_=self.fixture(root)
             marks=s.read_csv(src/'pMark.csv');marks[0]['Status']='blocked';s.write_csv(src/'pMark.csv',marks,list(marks[0]))
             out,report,rows=self.convert(src,root)
-            self.assertEqual(report['trial_cards'],1) # explicit isolated full-data trial, NOT active-only migration
+            self.assertEqual(report['trial_cards'],1) # явный изолированный полный пробный импорт, а не миграция только активных
             self.assertFalse(report['source_statuses_verified']);self.assertNotIn('Режимы',rows[0])
             self.assertIn('blocked',(out/'ПРОВЕРИТЬ_СТАТУСЫ_И_СРОКИ.csv').read_text())
             self.assertIn('БЛОКИРОВКИ БОЛИД НЕ ПЕРЕНЕСЕНЫ',(out/'СНАЧАЛА_ПРОЧИТАТЬ.txt').read_text())

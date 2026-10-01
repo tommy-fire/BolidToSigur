@@ -1,4 +1,4 @@
-"""Simple two-button workflow. No approvals, mapping guesses or SQL writes in UI."""
+"""Простой двухкнопочный сценарий. Без подтверждений, угадывания полей и записи в SQL в интерфейсе."""
 import importlib.util
 from pathlib import Path
 import os
@@ -51,7 +51,7 @@ def main():
     def choose(found):
         if not found:status.set('База не найдена.');messagebox.showerror('База не найдена','Проверьте логин/пароль и доступ к SQL Server. Нужен Microsoft ODBC-драйвер.');return
         if len(found)==1:export_one(found[0]);return
-        # Never silently choose a different database. This dialog appears only if ambiguous.
+        # Никогда не выбираем другую базу молча. Диалог появляется только при неоднозначности.
         win=tk.Toplevel(root);win.title('Найдено несколько баз');win.transient(root);win.grab_set();win.geometry('620x240')
         ttk.Label(win,text='Выберите рабочую базу Болид. Программа не может определить её по размеру.').pack(padx=10,pady=10)
         box=tk.Listbox(win,height=5)

@@ -9,5 +9,5 @@ python start_safe.py
 pause
 exit /b
 :fail
-echo Install Python and dependencies. See README.
+echo Установите Python и зависимости. См. README.
 pause

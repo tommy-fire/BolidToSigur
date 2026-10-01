@@ -1,5 +1,5 @@
-"""Portable .bolid archives. Offline, versioned, bounded and non-executable.
-SHA256 detects damage; it is NOT a signature proving who produced the file.
+"""Портативные .bolid-архивы: офлайн, с версией, ограничены по размеру, не исполняемые.
+SHA256 обнаруживает повреждение, но НЕ является подписью и не доказывает автора файла.
 """
 import datetime
 import hashlib
@@ -73,17 +73,17 @@ def clean_settings(settings):
     mode = settings.get('personal_mode', 'fields')
     if mode not in ('fields','notes'): raise ValueError('Неизвестный режим кадровых полей')
     result['personal_mode'] = mode
-    # Diagnostic override is NEVER remembered in a portable file.
+    # Диагностические переопределения НИКОГДА не запоминаются в портативном файле.
     return result
 
 
 def pack(folder, destination, settings=None):
-    """Create atomically. No DB access, no result folders or login credentials."""
+    """Создаём атомарно. Без доступа к БД, папок результата и учётных данных."""
     folder=Path(folder); destination=Path(destination)
     if destination.suffix.lower() != '.bolid': raise ValueError('Файл должен иметь расширение .bolid')
     counts=validate_snapshot(folder)
     from migration_data import enrich
-    details=enrich(folder)  # cache photos before moving the file to another computer
+    details=enrich(folder)  # кэшируем фото, чтобы файл можно было перенести на другой компьютер
     files=[]
     for name in sorted(ALLOWED):
         p=folder/name
@@ -125,7 +125,7 @@ def pack(folder, destination, settings=None):
 
 
 def unpack(bundle, output_root):
-    """Extract to a NEW project directory only; clean partial writes on failure."""
+    """Распаковка только в НОВУЮ папку проекта; при ошибке чистим частичные записи."""
     bundle=Path(bundle); output_root=Path(output_root)
     output_root.mkdir(parents=True,exist_ok=True)
     stage=None
@@ -166,7 +166,7 @@ def unpack(bundle, output_root):
                     raise ValueError('Файл повреждён: '+name)
             counts=validate_snapshot(stage)
             if counts!=meta.get('counts'):raise ValueError('Количество сотрудников/карт изменено')
-            # Local paths from a different computer must not be dereferenced.
+            # Локальные пути с другого компьютера нельзя разбирать.
             (stage/'PORTABLE.txt').write_text('Only packaged photo cache may be read.\n',encoding='utf-8')
             from migration_data import enrich
             enrich(stage)

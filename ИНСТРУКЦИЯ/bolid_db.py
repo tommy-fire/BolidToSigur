@@ -1,13 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-r"""Established SQL discovery/connection helpers, used only on the first tab.
-The GUI calls safe_w34.snapshot and transfer_bundle.pack to save a .bolid file.
-No writes to the Bolid database. ODBC is not needed to open a saved .bolid file.
+r"""Помощники поиска и подключения к SQL — используются только на первом шаге.
+Интерфейс вызывает safe_w34.snapshot и transfer_bundle.pack для сохранения .bolid-файла.
+Записей в базу Болид нет. Для открытия сохранённого .bolid ODBC не нужен.
 """
 import os, re, sys, csv, traceback
-
-APP = "Полная выгрузка из базы «Орион Про»"
-VER = "v.03"
 
 # ============================================================ поиск MS SQL
 def parse_services(text):

@@ -1,4 +1,4 @@
-"""Portable file tests use synthetic identities/cards/photos, never live SQL."""
+"""Тесты портативных файлов: синтетические идентификаторы/карты/фото, без живой БД."""
 import hashlib
 import io
 import json

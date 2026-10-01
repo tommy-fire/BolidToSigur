@@ -94,5 +94,5 @@ class CalibrationTest(unittest.TestCase):
             s.write_csv(root/'pMark.csv',marks,list(marks[0]));path.unlink();s.prepare(root);rows=s.read_csv(path)
             for r in rows:r.update(Approve='ДА',Profile='symmetric',ObservedW34=r['CandidateW34'])
             s.write_csv(path,rows,s.REVIEW);out=s.build(path);report=json.loads((out/'Отчёт.json').read_text())
-            # Individual readings can still be used; no automatic profile was validated.
+            # Отдельные замеры при этом допустимы; автоматический профиль не валидирован.
             self.assertEqual(report['calibrated_profiles'],[]);self.assertIn('симметричны',report['profile_errors']['symmetric'])

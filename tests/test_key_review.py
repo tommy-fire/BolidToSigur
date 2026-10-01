@@ -1,4 +1,4 @@
-"""Additional deterministic key review; synthetic data, not hardware validation."""
+"""Дополнительная детерминированная проверка ключей; синтетические данные, без аппаратной сверки."""
 import unittest, tempfile, json, random
 from pathlib import Path
 import test_safe

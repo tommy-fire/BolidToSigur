@@ -1,4 +1,4 @@
-"""v3.5: birthday-only import notes and personnel independent of pass presence."""
+"""Примечание — только дата рождения; сотрудники независимы от наличия пропусков."""
 import json
 import tempfile
 import unittest
