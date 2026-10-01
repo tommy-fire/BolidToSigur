@@ -89,7 +89,7 @@ def main():
         b=ttk.Button(root,text=label,command=fn);b.pack(fill='x',ipady=10,pady=5);buttons.append(b)
     ttk.Separator(root).pack(fill='x',pady=12)
     ttk.Label(root,textvariable=status,wraplength=665).pack(anchor='w')
-    ttk.Label(root,text='Полный ПРОБНЫЙ импорт: сотрудники + карты + найденные сроки. Только пустая тестовая база без доступа. Номера не сверены; блокировки Болид НЕ перенесены.',wraplength=665,foreground='#844300').pack(anchor='w',pady=10)
+    ttk.Label(root,text='Полный импорт: сотрудники + карты + найденные сроки. Только пустая тестовая база без доступа. Номера не сверены; блокировки Болид НЕ перенесены.',wraplength=665,foreground='#844300').pack(anchor='w',pady=10)
     def poll():
         try:
             while True:
